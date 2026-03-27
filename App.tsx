@@ -1,16 +1,17 @@
 import { NavigationContainer } from '@react-navigation/native';
-import LoginPage from './src/pages/user/LoginPage';
 import { LoginProvider } from './src/context/LoginContext';
-import { ReactNativeToast } from './src/layouts/Toast';
+import BottomTabNavigator from './src/layouts/BottomTabNavigator';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 function App() {
   return (
-    <NavigationContainer>
-      <LoginProvider>
-        <LoginPage />
-        <ReactNativeToast />
-      </LoginProvider>
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <LoginProvider>
+          <BottomTabNavigator />
+        </LoginProvider>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
 
