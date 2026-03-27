@@ -25,19 +25,20 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
 
   const onLoginSubmit = async () => {
-    await UserLoginApi(email, password)
-      .then(res => {
-        AsyncStorage.multiSet([
-          ['userId', String(res.data.data.userId ?? '')],
-          ['nickname', String(res.data.data.nickname ?? '')],
-          ['accessToken', String(res.headers.accesstoken ?? '')],
-          ['refreshToken', String(res.headers.refreshtoken ?? '')],
-        ]);
+    try {
+      const res = await UserLoginApi(email, password);
 
-        setIsLogin(true);
-        navigation.navigate('Home');
-      })
-      .catch(() => {});
+      await AsyncStorage.multiSet([
+        ['userId', String(res.data.data.userId ?? '')],
+        ['nickname', String(res.data.data.nickname ?? '')],
+        ['accessToken', String(res.headers.accesstoken ?? '')],
+        ['refreshToken', String(res.headers.refreshtoken ?? '')],
+      ]);
+
+      setIsLogin(true);
+    } catch (e) {
+      console.log('login error =', e);
+    }
   };
 
   const moveToRegister = () => {

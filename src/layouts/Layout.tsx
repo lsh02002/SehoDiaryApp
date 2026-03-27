@@ -13,6 +13,7 @@ import { Menu } from 'lucide-react-native';
 import { BackwardButton } from '../components/react-native-form/BackwardButton';
 import AddDiaryButton from '../components/react-native-form/AddDiaryButton';
 import { useNavigation } from '@react-navigation/native';
+import CommentPage from '../pages/comment/CommentPage';
 
 interface Props {
   appName?: string;
@@ -56,7 +57,7 @@ export default function Layout({ appName = '앱', children }: Props) {
             </View>
 
             <View style={styles.sidebarContent}>
-              <Text>예제</Text>
+              <CommentPage />
             </View>
           </View>
         </Modal>
@@ -85,7 +86,10 @@ export default function Layout({ appName = '앱', children }: Props) {
           {children}
         </ScrollView>
 
-        <AddDiaryButton title="+" onPress={() => {}} />
+        <AddDiaryButton
+          title="+"
+          onPress={() => navigation.navigate('DiaryCreate')}
+        />
       </View>
     </View>
   );
@@ -101,6 +105,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#fff',
+    maxWidth: 420,
   },
   burgerButton: {
     position: 'absolute',

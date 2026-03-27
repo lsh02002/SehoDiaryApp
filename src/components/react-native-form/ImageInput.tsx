@@ -10,15 +10,14 @@ import {
 import { Asset, launchImageLibrary } from 'react-native-image-picker';
 import { colors } from '../../themes/theme';
 import { FieldLabel, FieldWrapper } from './field';
-
-export type ImageAsset = Asset;
+import { RNFileType } from '../../types/type';
 
 type Props = {
   disabled?: boolean;
   name: string;
   title: string;
-  data: ImageAsset[];
-  setData: (files: ImageAsset[]) => void;
+  data: RNFileType[];
+  setData: React.Dispatch<React.SetStateAction<RNFileType[] | null>>;
   previewUrls: string[];
   setPreviewUrls: React.Dispatch<React.SetStateAction<string[]>>;
 };
@@ -26,12 +25,41 @@ type Props = {
 const ImageInput = ({
   disabled,
   title,
-  data,
   setData,
   previewUrls,
   setPreviewUrls,
 }: Props) => {
   const [uploading, setUploading] = useState(false);
+
+  const getExtension = (mimeType?: string) => {
+    switch (mimeType) {
+      case 'image/png':
+        return 'png';
+      case 'image/webp':
+        return 'webp';
+      case 'image/heic':
+        return 'heic';
+      case 'image/heif':
+        return 'heif';
+      default:
+        return 'jpg';
+    }
+  };
+
+  const assetToRNFile = (asset: Asset): RNFileType => {
+    if (!asset.uri) {
+      throw new Error('uri가 없는 이미지입니다.');
+    }
+
+    const type = asset.type || 'image/jpeg';
+    const name = asset.fileName || `image-${Date.now()}.${getExtension(type)}`;
+
+    return {
+      uri: asset.uri,
+      name,
+      type,
+    };
+  };
 
   const handlePick = async () => {
     if (disabled || uploading) return;
@@ -59,9 +87,16 @@ const ImageInput = ({
       }
 
       const selected = (result.assets ?? []).slice(0, 4);
-      setData(selected);
-      setPreviewUrls([]);
-    } catch {
+
+      const files = selected.map(assetToRNFile);
+      const uris = selected
+        .map(asset => asset.uri)
+        .filter((uri): uri is string => Boolean(uri));
+
+      setData(files);
+      setPreviewUrls(uris);
+    } catch (error) {
+      console.error(error);
       Alert.alert('오류', '이미지를 선택하는 중 문제가 발생했습니다.');
     } finally {
       setUploading(false);
@@ -89,21 +124,11 @@ const ImageInput = ({
       >
         {previewUrls.map((url, i) => (
           <Image
-            key={`old-${i}`}
+            key={`preview-${i}`}
             source={{ uri: url }}
             style={styles.preview}
           />
         ))}
-
-        {data.map((asset, i) =>
-          asset.uri ? (
-            <Image
-              key={`new-${i}`}
-              source={{ uri: asset.uri }}
-              style={styles.preview}
-            />
-          ) : null,
-        )}
       </ScrollView>
     </FieldWrapper>
   );

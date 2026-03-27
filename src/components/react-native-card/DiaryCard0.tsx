@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   Modal,
@@ -23,30 +23,30 @@ import {
   isLikedApi,
 } from '../../api/sehodiary-api';
 import ImageCard from './ImageCard';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-type Props = {
-  diary0: DiaryResponseType | undefined;
+export type RootStackParamList = {
+  MainTabs: undefined;
+  Login: undefined;
+  Signup: undefined;
+  DiaryCreate: undefined;
+  DiaryList: undefined;
+  DiaryEdit: { diaryId: number };
 };
 
-const formatDate = (value?: string) => {
-  if (!value) return '';
-  const date = new Date(value);
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    2,
-    '0',
-  )}-${String(date.getDate()).padStart(2, '0')}`;
-};
+type DiaryListNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'DiaryList'
+>;
 
-const DiaryCard0 = ({ diary0 }: Props) => {
-  const navigation = useNavigation<any>();
+const DiaryCard0 = ({ diary0 }: { diary0: DiaryResponseType }) => {
+  const navigation = useNavigation<DiaryListNavigationProp>();
   const { width } = useWindowDimensions();
   const { isLogin, setOpen, setDiary } = useLogin();
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(-1);
   const [nicknameList, setNicknameList] = useState<string[]>([]);
   const [likesModalVisible, setLikesModalVisible] = useState(false);
-
-  const date = useMemo(() => formatDate(diary0?.date), [diary0?.date]);
 
   useEffect(() => {
     setLikesCount(diary0?.likesCount ?? -1);
@@ -101,7 +101,7 @@ const DiaryCard0 = ({ diary0 }: Props) => {
   };
 
   const moveToDetail = () => {
-    navigation.navigate('EditDiary', { id: diary0?.id });
+    navigation.navigate('DiaryEdit', { diaryId: diary0?.id });
   };
 
   return (
@@ -163,7 +163,7 @@ const DiaryCard0 = ({ diary0 }: Props) => {
                 <Text style={styles.metaText}>{likesCount}</Text>
               </Pressable>
 
-              <Text style={styles.metaText}>{date}</Text>
+              <Text style={styles.metaText}>{diary0?.date}</Text>
             </View>
           </View>
         </View>

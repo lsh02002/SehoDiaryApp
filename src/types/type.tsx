@@ -71,3 +71,10 @@ export type EmotionResponseType = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type RNFileType = {
+  uri: string;
+  name?: string;  
+  type?: string;
+  size?: number;
+};

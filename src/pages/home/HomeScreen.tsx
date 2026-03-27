@@ -1,18 +1,8 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import Layout from '../../layouts/Layout';
+import DiaryListPage from '../diary/DiaryListPage';
 
-const HomeScreen = ({ route }: any) => {
-  const tab = route?.params?.tab ?? 'home';
-  
-  return (
-    <Layout>
-      <View>        
-        <Text>홈페이지</Text>
-        <Text>현재 탭: {tab}</Text>
-      </View>
-    </Layout>
-  );
+const HomeScreen = () => {
+  return <DiaryListPage />;
 };
 
 export default HomeScreen;

@@ -34,12 +34,13 @@ const PellRichEditorInput = ({
   const initializedRef = useRef(false);
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [initialHtml] = useState(data || '');
+  const [initialHtml, setInitialHtml] = useState(data || '');
 
   const editorHeight = useMemo(() => Math.max(rows, 8) * 28, [rows]);
 
-  useEffect(() => {
+  useEffect(() => {    
     htmlRef.current = data || '';
+    setInitialHtml(data);
   }, [data]);
 
   useEffect(() => {

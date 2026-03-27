@@ -1,20 +1,30 @@
-import React from "react";
-import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
 
-export const TwoDiv = ({
-  children,
-  style,
-}: {
+type TwoDivProps = {
   children: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
-}) => <View style={[styles.row, style]}>{children}</View>;
+};
+
+export const TwoDiv = ({ children }: TwoDivProps) => {
+  const childArray = React.Children.toArray(children);
+
+  return (
+    <View style={styles.row}>
+      <View style={styles.col}>{childArray[0] ?? null}</View>
+      <View style={styles.col}>{childArray[1] ?? null}</View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   row: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
+    flexDirection: 'row',
+    width: '100%',
+    marginBottom: 12,
+    columnGap: 12,
+  },
+  col: {
+    flex: 1,
+    minWidth: 0,
   },
 });
