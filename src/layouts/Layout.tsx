@@ -7,10 +7,12 @@ import {
   Modal,
   Pressable,
   ScrollView,
+  Button,
 } from 'react-native';
 import { Menu } from 'lucide-react-native';
 import { BackwardButton } from '../components/react-native-form/BackwardButton';
 import AddDiaryButton from '../components/react-native-form/AddDiaryButton';
+import { useNavigation } from '@react-navigation/native';
 
 interface Props {
   appName?: string;
@@ -19,6 +21,7 @@ interface Props {
 
 export default function Layout({ appName = '앱', children }: Props) {
   const [open, setOpen] = useState(false);
+  const navigation = useNavigation<any>();
 
   return (
     <View style={styles.safeArea}>
@@ -61,6 +64,16 @@ export default function Layout({ appName = '앱', children }: Props) {
         <View style={styles.header}>
           <View style={styles.headerInner}>
             <Text style={styles.appName}>{appName}</Text>
+            <View style={styles.auth}>
+              <Button
+                title="로그인"
+                onPress={() => navigation.navigate('Login')}
+              />
+              <Button
+                title="회원가입"
+                onPress={() => navigation.navigate('Signup')}
+              />
+            </View>
           </View>
         </View>
 
@@ -167,6 +180,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#666',
     fontWeight: '600',
+  },
+  auth: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 10,
   },
   userBox: {
     alignItems: 'flex-end',
