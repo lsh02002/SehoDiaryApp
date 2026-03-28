@@ -8,7 +8,7 @@ import CommentCard0 from '../../components/react-native-card/CommentCard0';
 
 import {
   getCommentsByDiaryApi,
-  putCommentByIdApi,  
+  putCommentByIdApi,
 } from '../../api/sehodiary-api';
 
 import { CommentRequestType, CommentResponseType } from '../../types/type';
@@ -60,7 +60,11 @@ const CommentPage = () => {
       </View>
       <View style={styles.listContent}>
         {(commentList ?? []).map(comment => (
-          <CommentCard0 comment={comment} handleEditSave={handleEditSave} />
+          <CommentCard0
+            key={comment?.commentId}
+            comment={comment}
+            handleEditSave={handleEditSave}
+          />
         ))}
         {commentList && commentList?.length < 1 && (
           <View style={styles.emptyContainer}>
@@ -75,12 +79,12 @@ const CommentPage = () => {
 export default CommentPage;
 
 const styles = StyleSheet.create({
-  container: {    
+  container: {
     paddingHorizontal: 8,
-    backgroundColor: '#fff',    
+    backgroundColor: '#fff',
   },
   listContent: {
-    paddingBottom: 100,    
+    paddingBottom: 100,
   },
   emptyContainer: {
     alignItems: 'center',

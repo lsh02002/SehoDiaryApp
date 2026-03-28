@@ -42,7 +42,7 @@ const LoginPage = () => {
   };
 
   const moveToRegister = () => {
-    navigation.navigate('Register');
+    navigation.navigate('Signup');
   };
 
   return (
