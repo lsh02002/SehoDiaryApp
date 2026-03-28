@@ -138,11 +138,7 @@ const DiaryCard0 = ({ diary0 }: { diary0: DiaryResponseType }) => {
               <Text>{diary0?.emoji}</Text>
 
               <Pressable onPress={handleOpenComment} hitSlop={8}>
-                <Feather
-                  name="chatbox-ellipses-outline"
-                  size={18}
-                  color="#374151"
-                />
+                <Feather name="message-square" size={18} color="#374151" />
               </Pressable>
               <Text style={styles.metaText}>({diary0?.commentsCount})</Text>
 

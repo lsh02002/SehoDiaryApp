@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
+  Dimensions,
   Image,
   LayoutChangeEvent,
   Pressable,
@@ -7,13 +8,13 @@ import {
   Text,
   View,
 } from 'react-native';
-import PagerView, { PagerViewOnPageSelectedEvent } from 'react-native-pager-view';
+import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
 
 import { DiaryResponseType } from '../../types/type';
 import SelectInput from '../../components/react-native-form/SelectInput';
 import { TwoDiv } from '../../components/react-native-form/TwoDiv';
 
-type SwiperEffectType = 'slide' | 'fade' | 'cube' | 'coverflow' | 'flip';
+type SwiperEffectType = 'slide' | 'horizontal-stack' | 'vertical-stack';
 type SwiperDelayType = 500 | 1000 | 2000 | 3000 | 4000;
 
 type ImageItem = {
@@ -21,26 +22,26 @@ type ImageItem = {
   fileName?: string;
 };
 
+const { width: screenWidth } = Dimensions.get('window');
+
 const ImageSliderPage = ({ diary }: { diary: DiaryResponseType }) => {
   const [effect, setEffect] = useState<SwiperEffectType>('slide');
   const [delay, setDelay] = useState<SwiperDelayType>(1000);
   const [containerHeight, setContainerHeight] = useState(320);
+  const [containerWidth, setContainerWidth] = useState(screenWidth);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const pagerRef = useRef<PagerView>(null);
-  const autoplayTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const carouselRef = useRef<ICarouselInstance>(null);
 
   const images: ImageItem[] = diary?.imageResponses ?? [];
 
   const effectOptions = useMemo(
     () => [
-      { label: '페이드', value: 'fade' },
       { label: '슬라이드', value: 'slide' },
-      { label: '큐브', value: 'cube' },
-      { label: '커버플로우', value: 'coverflow' },
-      { label: '플립', value: 'flip' },
+      { label: '가로 스택', value: 'horizontal-stack' },
+      { label: '세로 스택', value: 'vertical-stack' },
     ],
-    []
+    [],
   );
 
   const delayOptions = useMemo(
@@ -51,154 +52,141 @@ const ImageSliderPage = ({ diary }: { diary: DiaryResponseType }) => {
       { label: '3 초', value: '3000' },
       { label: '4 초', value: '4000' },
     ],
-    []
+    [],
   );
 
   const onLayoutContainer = useCallback((e: LayoutChangeEvent) => {
     const { width } = e.nativeEvent.layout;
     if (width > 0) {
+      setContainerWidth(width);
       setContainerHeight(Math.max(260, width * 0.75));
     }
   }, []);
 
-  const stopAutoplay = useCallback(() => {
-    if (autoplayTimerRef.current) {
-      clearInterval(autoplayTimerRef.current);
-      autoplayTimerRef.current = null;
-    }
-  }, []);
-
-  const goToPage = useCallback(
-    (page: number, animated = true) => {
-      if (!pagerRef.current || images.length === 0) {
-        return;
-      }
-
-      const safePage = ((page % images.length) + images.length) % images.length;
-
-      if (animated) {
-        pagerRef.current.setPage(safePage);
-      } else {
-        pagerRef.current.setPageWithoutAnimation(safePage);
-      }
-
-      setCurrentIndex(safePage);
-    },
-    [images.length]
-  );
-
-  const goToNext = useCallback(() => {
-    if (!pagerRef.current || images.length <= 1) {
-      return;
+  const stackModeConfig = useMemo(() => {
+    if (effect === 'slide') {
+      return undefined;
     }
 
-    setCurrentIndex(prev => {
-      const next = prev + 1;
-      const target = next >= images.length ? 0 : next;
-
-      if (next >= images.length) {
-        pagerRef.current?.setPageWithoutAnimation(0);
-      } else {
-        pagerRef.current?.setPage(target);
-      }
-
-      return target;
-    });
-  }, [images.length]);
-
-  const startAutoplay = useCallback(() => {
-    stopAutoplay();
-
-    if (images.length <= 1) {
-      return;
-    }
-
-    autoplayTimerRef.current = setInterval(() => {
-      goToNext();
-    }, delay);
-  }, [delay, goToNext, images.length, stopAutoplay]);
-
-  useEffect(() => {
-    startAutoplay();
-
-    return () => {
-      stopAutoplay();
+    return {
+      snapDirection: 'left' as const,
+      stackInterval: 18,
+      scaleInterval: 0.08,
+      opacityInterval: 0.1,
+      rotateZDeg: 0,
     };
-  }, [startAutoplay, stopAutoplay]);
+  }, [effect]);
 
-  useEffect(() => {
-    if (images.length === 0) {
-      setCurrentIndex(0);
-      stopAutoplay();
-      return;
-    }
-
-    if (currentIndex >= images.length) {
-      goToPage(0, false);
-    }
-  }, [currentIndex, goToPage, images.length, stopAutoplay]);
-
-  const onPageSelected = useCallback((e: PagerViewOnPageSelectedEvent) => {
-    setCurrentIndex(e.nativeEvent.position);
+  const handlePressPagination = useCallback((index: number) => {
+    carouselRef.current?.scrollTo({
+      index,
+      animated: true,
+    });
+    setCurrentIndex(index);
   }, []);
 
-  const slideVariantStyle = useMemo(() => {
-    switch (effect) {
-      case 'fade':
-        return styles.fadeSlide;
-      case 'cube':
-        return styles.cubeSlide;
-      case 'coverflow':
-        return styles.coverflowSlide;
-      case 'flip':
-        return styles.flipSlide;
-      case 'slide':
-      default:
-        return styles.slideOnly;
-    }
-  }, [effect]);
+  const handleChangeEffect = useCallback((value: string) => {
+    setEffect(value as SwiperEffectType);
+    setCurrentIndex(0);
+
+    requestAnimationFrame(() => {
+      carouselRef.current?.scrollTo({
+        index: 0,
+        animated: false,
+      });
+    });
+  }, []);
+
+  const handleChangeDelay = useCallback((value: string) => {
+    setDelay(Number(value) as SwiperDelayType);
+  }, []);
 
   return (
     <View style={styles.wrapper}>
       <View style={styles.sliderContainer} onLayout={onLayoutContainer}>
         {images.length > 0 ? (
           <>
-            <PagerView
-              key={`${effect}-${delay}-${images.length}`}
-              ref={pagerRef}
-              style={[styles.pager, { height: containerHeight }]}
-              initialPage={0}
-              onPageSelected={onPageSelected}
-              overScrollMode="never"
-            >
-              {images.map((item, index) => (
-                <View
-                  key={item.fileUrl ?? String(index)}
-                  style={styles.page}
-                  collapsable={false}
-                >
-                  <View style={[styles.slide, slideVariantStyle]}>
-                    <Image
-                      source={{ uri: item.fileUrl }}
-                      resizeMode="contain"
-                      style={[styles.image, { height: containerHeight - 40 }]}
-                    />
-                    <Text style={styles.fileName}>
-                      파일명: {item.fileName ?? '-'}
-                    </Text>
+            {effect === 'slide' ? (
+              <Carousel
+                key={`${effect}-${delay}-${images.length}`}
+                ref={carouselRef}
+                loop={images.length > 1}
+                autoPlay={images.length > 1}
+                autoPlayInterval={delay}
+                width={containerWidth}
+                height={containerHeight}
+                data={images}
+                scrollAnimationDuration={800}
+                pagingEnabled
+                snapEnabled
+                enabled={images.length > 1}
+                onSnapToItem={index => setCurrentIndex(index)}
+                renderItem={({ item, index }) => (
+                  <View
+                    key={item.fileUrl ?? String(index)}
+                    style={[
+                      styles.page,
+                      { width: containerWidth, height: containerHeight },
+                    ]}
+                  >
+                    <View style={styles.slide}>
+                      <Image
+                        source={{ uri: item.fileUrl }}
+                        resizeMode="contain"
+                        style={[styles.image, { height: containerHeight - 40 }]}
+                      />
+                      <Text style={styles.fileName}>
+                        파일명: {item.fileName ?? '-'}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-              ))}
-            </PagerView>
+                )}
+              />
+            ) : (
+              <Carousel
+                key={`${effect}-${delay}-${images.length}`}
+                ref={carouselRef}
+                loop={images.length > 1}
+                autoPlay={images.length > 1}
+                autoPlayInterval={delay}
+                width={containerWidth}
+                height={containerHeight}
+                data={images}
+                mode={effect}
+                modeConfig={stackModeConfig}
+                scrollAnimationDuration={800}
+                pagingEnabled
+                snapEnabled
+                enabled={images.length > 1}
+                onSnapToItem={index => setCurrentIndex(index)}
+                renderItem={({ item, index }) => (
+                  <View
+                    key={item.fileUrl ?? String(index)}
+                    style={[
+                      styles.page,
+                      { width: containerWidth, height: containerHeight },
+                    ]}
+                  >
+                    <View style={styles.slide}>
+                      <Image
+                        source={{ uri: item.fileUrl }}
+                        resizeMode="contain"
+                        style={[styles.image, { height: containerHeight - 40 }]}
+                      />
+                      <Text style={styles.fileName}>
+                        파일명: {item.fileName ?? '-'}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              />
+            )}
 
             <View style={styles.pagination}>
               {images.map((_, index) => (
                 <Pressable
                   key={index}
-                  onPress={() => {
-                    goToPage(index);
-                    startAutoplay();
-                  }}
+                  onPress={() => handlePressPagination(index)}
                   hitSlop={8}
                   style={[
                     styles.dot,
@@ -227,20 +215,14 @@ const ImageSliderPage = ({ diary }: { diary: DiaryResponseType }) => {
             name="effects"
             title="효과"
             value={effect}
-            setValue={(v: string) => {
-              setEffect(v as SwiperEffectType);
-              goToPage(0, false);
-              startAutoplay();
-            }}
+            setValue={handleChangeEffect}
             options={effectOptions}
           />
           <SelectInput
             name="delays"
             title="시간지연"
             value={String(delay)}
-            setValue={(v: string) => {
-              setDelay(Number(v) as SwiperDelayType);
-            }}
+            setValue={handleChangeDelay}
             options={delayOptions}
           />
         </TwoDiv>
@@ -261,13 +243,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     marginBottom: 16,
   },
-  pager: {
-    width: '100%',
-    height: '100%',
-  },
   page: {
-    width: '100%',
-    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 12,
@@ -281,22 +257,6 @@ const styles = StyleSheet.create({
     paddingBottom: 28,
     borderRadius: 16,
   },
-
-  slideOnly: {},
-
-  fadeSlide: {
-    opacity: 0.96,
-  },
-  cubeSlide: {
-    transform: [{ scale: 0.98 }],
-  },
-  coverflowSlide: {
-    transform: [{ scale: 0.96 }],
-  },
-  flipSlide: {
-    transform: [{ scale: 0.97 }],
-  },
-
   image: {
     width: '100%',
   },
