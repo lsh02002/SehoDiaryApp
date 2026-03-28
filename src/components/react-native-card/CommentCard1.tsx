@@ -3,15 +3,15 @@ import {
   Image,
   Pressable,
   StyleSheet,
-  Text,
-  TextInput,
+  Text,  
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RenderHTML from 'react-native-render-html';
 import { useWindowDimensions } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons'
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { CommentResponseType } from '../../types/type';
+import PellRichEditorInput from '../react-native-form/PellRichEditorInput';
 
 type Props = {
   comment: CommentResponseType;
@@ -22,9 +22,10 @@ type Props = {
 const formatDate = (value?: string) => {
   if (!value) return '';
   const date = new Date(value);
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
-    date.getDate(),
-  ).padStart(2, '0')}`;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    '0',
+  )}-${String(date.getDate()).padStart(2, '0')}`;
 };
 
 const CommentCard1 = ({ comment, handleEditSave, handleRemoveSave }: Props) => {
@@ -38,11 +39,14 @@ const CommentCard1 = ({ comment, handleEditSave, handleRemoveSave }: Props) => {
 
   useEffect(() => {
     AsyncStorage.getItem('nickname')
-      .then((value) => setNickname(value ?? ''))
+      .then(value => setNickname(value ?? ''))
       .catch(() => setNickname(''));
   }, []);
 
-  const createdAt = useMemo(() => formatDate(comment?.createdAt), [comment?.createdAt]);
+  const createdAt = useMemo(
+    () => formatDate(comment?.createdAt),
+    [comment?.createdAt],
+  );
   const isEditing = comment?.nickname === nickname;
 
   return (
@@ -51,27 +55,34 @@ const CommentCard1 = ({ comment, handleEditSave, handleRemoveSave }: Props) => {
         <View style={styles.column}>
           <View style={styles.rowStart}>
             {comment?.profileImage ? (
-              <Image source={{ uri: comment.profileImage }} style={styles.avatar} />
+              <Image
+                source={{ uri: comment.profileImage }}
+                style={styles.avatar}
+              />
             ) : (
-              <Ionicons name="person-outline" size={24} color="#6b7280" style={styles.icon} />
+              <Ionicons
+                name="person-outline"
+                size={24}
+                color="#6b7280"
+                style={styles.icon}
+              />
             )}
 
             <View style={styles.flex1}>
               {isEditing ? (
                 <View>
                   <Text style={styles.label}>내용</Text>
-                  <TextInput
-                    value={content}
-                    onChangeText={setContent}
-                    multiline
-                    style={styles.editor}
-                    placeholder="내용을 입력하세요"
-                    textAlignVertical="top"
+                  <PellRichEditorInput
+                    title="내용"
+                    data={content}
+                    setData={setContent}
                   />
                   <View style={styles.buttonRow}>
                     <Pressable
                       style={styles.primaryButton}
-                      onPress={() => handleEditSave(comment?.commentId, content)}
+                      onPress={() =>
+                        handleEditSave(comment?.commentId, content)
+                      }
                     >
                       <Text style={styles.primaryButtonText}>수정</Text>
                     </Pressable>
@@ -84,7 +95,10 @@ const CommentCard1 = ({ comment, handleEditSave, handleRemoveSave }: Props) => {
                   </View>
                 </View>
               ) : (
-                <RenderHTML contentWidth={width - 100} source={{ html: comment?.content ?? '' }} />
+                <RenderHTML
+                  contentWidth={width - 100}
+                  source={{ html: comment?.content ?? '' }}
+                />
               )}
             </View>
           </View>
@@ -103,6 +117,8 @@ const CommentCard1 = ({ comment, handleEditSave, handleRemoveSave }: Props) => {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#eee',
     borderRadius: 14,
     marginBottom: 12,
     shadowColor: '#000',

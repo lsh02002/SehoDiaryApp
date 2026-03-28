@@ -5,7 +5,8 @@ import LoginPage from '../pages/user/LoginPage';
 import SignupPage from '../pages/user/SignupPage';
 import DiaryCreatePage from '../pages/diary/DiaryCreatePage';
 import DiaryEditPage from '../pages/diary/DiaryEditPage';
-import { RootStackParamList } from '../components/react-native-card/DiaryCard0';
+import MyPage from '../pages/mypage/MyPage';
+import { RootStackParamList } from '../types/type';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -17,6 +18,7 @@ const RootNavigator = () => {
       <Stack.Screen name="Signup" component={SignupPage} />
       <Stack.Screen name="DiaryCreate" component={DiaryCreatePage} />
       <Stack.Screen name="DiaryEdit" component={DiaryEditPage} />
+      <Stack.Screen name="Mypage" component={MyPage} />
     </Stack.Navigator>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useLogin } from '../../context/LoginContext';
 import DiaryCard1 from '../../components/react-native-card/DiaryCard1';
@@ -8,11 +8,11 @@ import CommentCard0 from '../../components/react-native-card/CommentCard0';
 
 import {
   getCommentsByDiaryApi,
-  putCommentByIdApi,
-  showToast,
+  putCommentByIdApi,  
 } from '../../api/sehodiary-api';
 
 import { CommentRequestType, CommentResponseType } from '../../types/type';
+import { showToast } from '../../layouts/Toast';
 
 const CommentPage = () => {
   const { diary, commentList, setCommentList, setMyCommentList } = useLogin();
@@ -52,46 +52,35 @@ const CommentPage = () => {
       .catch(() => {});
   };
 
-  const renderHeader = () => (
-    <View>
-      <DiaryCard1 diary={diary} />
-      <CommentCreateCard diaryId={diary?.id ?? -1} />
-    </View>
-  );
-
-  const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>해당 댓글이 없습니다!</Text>
-    </View>
-  );
-
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={commentList ?? []}
-        keyExtractor={item => String(item.commentId)}
-        renderItem={({ item }) => (
-          <CommentCard0 comment={item} handleEditSave={handleEditSave} />
+    <ScrollView style={styles.container}>
+      <View>
+        <DiaryCard1 diary={diary} />
+        <CommentCreateCard diaryId={diary?.id ?? -1} />
+      </View>
+      <View style={styles.listContent}>
+        {(commentList ?? []).map(comment => (
+          <CommentCard0 comment={comment} handleEditSave={handleEditSave} />
+        ))}
+        {commentList && commentList?.length < 1 && (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>해당 댓글이 없습니다!</Text>
+          </View>
         )}
-        ListHeaderComponent={renderHeader}
-        ListEmptyComponent={renderEmpty}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
+      </View>
+    </ScrollView>
   );
 };
 
 export default CommentPage;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: {    
     paddingHorizontal: 8,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff',    
   },
   listContent: {
-    paddingBottom: 100,
+    paddingBottom: 100,    
   },
   emptyContainer: {
     alignItems: 'center',

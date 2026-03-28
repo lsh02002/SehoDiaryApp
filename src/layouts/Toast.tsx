@@ -1,101 +1,88 @@
-import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import Toast, {
-  BaseToastProps,
-  ToastConfig,
-} from "react-native-toast-message";
+import Toast from "react-native-root-toast";
 
-const ToastItem = ({
-  text1,  
-  backgroundColor,
-  textColor,
-}: {
-  text1?: string;  
-  backgroundColor: string;
-  textColor: string;
-}) => {
-  return (
-    <View style={[styles.toastContainer, { backgroundColor }]}>
-      <Text style={[styles.message, { color: textColor }]} numberOfLines={2}>
-        {text1}
-      </Text>
+export type ToastType = "success" | "error" | "info" | "warning";
 
-      <Pressable onPress={()=>Toast.hide()} hitSlop={8} style={styles.closeButton}>
-        <Text style={[styles.closeText, { color: textColor }]}>×</Text>
-      </Pressable>
-    </View>
-  );
+let activeToast: any = null;
+let activeMessage = "";
+
+const getToastStyle = (type: ToastType) => {
+  switch (type) {
+    case "success":
+      return {
+        backgroundColor: "#198754",
+        textColor: "#ffffff",
+      };
+    case "error":
+      return {
+        backgroundColor: "#dc3545",
+        textColor: "#ffffff",
+      };
+    case "warning":
+      return {
+        backgroundColor: "#ffc107",
+        textColor: "#212529",
+      };
+    case "info":
+      return {
+        backgroundColor: "#0dcaf0",
+        textColor: "#ffffff",
+      };
+    default:
+      return {
+        backgroundColor: "#333333",
+        textColor: "#ffffff",
+      };
+  }
 };
 
-export const toastConfig: ToastConfig = {
-  success: (props: BaseToastProps) => (
-    <ToastItem
-      text1={props.text1}      
-      backgroundColor="#198754"
-      textColor="#ffffff"
-    />
-  ),
-  error: (props: BaseToastProps) => (
-    <ToastItem
-      text1={props.text1}      
-      backgroundColor="#dc3545"
-      textColor="#ffffff"
-    />
-  ),
-  warning: (props: BaseToastProps) => (
-    <ToastItem
-      text1={props.text1}      
-      backgroundColor="#ffc107"
-      textColor="#212529"
-    />
-  ),
-  info: (props: BaseToastProps) => (
-    <ToastItem
-      text1={props.text1}      
-      backgroundColor="#0dcaf0"
-      textColor="#ffffff"
-    />
-  ),
+export const showToast = (
+  message: string,
+  type: ToastType = "error"
+) => {
+  if (activeMessage === message) return;
+
+  if (activeToast) {
+    Toast.hide(activeToast);
+    activeToast = null;
+    activeMessage = "";
+  }
+
+  const { backgroundColor, textColor } = getToastStyle(type);
+
+  activeMessage = message;
+
+  activeToast = Toast.show(message, {
+    duration: Toast.durations.LONG,
+    position: Toast.positions.BOTTOM,
+    shadow: false,
+    animation: true,
+    hideOnPress: true,
+    delay: 0,
+    backgroundColor,
+    textColor,
+    containerStyle: {
+      width: "90%",
+      minHeight: 56,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      justifyContent: "center",
+    },
+    textStyle: {
+      fontSize: 16,
+      fontWeight: "500",
+    },
+    onHidden: () => {
+      activeToast = null;
+      activeMessage = "";
+    },
+  });
 };
 
-export const ReactNativeToast = () => {
-  return (
-    <Toast
-      config={toastConfig}
-      position="bottom"
-      bottomOffset={100}
-    />
-  );
+export const hideToast = () => {
+  if (activeToast) {
+    Toast.hide(activeToast);
+    activeToast = null;
+    activeMessage = "";
+  }
 };
-
-const styles = StyleSheet.create({
-  toastContainer: {
-    minHeight: 56,
-    width: "90%",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    paddingRight: 40,
-    justifyContent: "center",
-    alignSelf: "center",
-    position: "relative",
-  },
-  message: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  closeButton: {
-    position: "absolute",
-    top: 8,
-    right: 10,
-    width: 24,
-    height: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeText: {
-    fontSize: 20,
-    fontWeight: "700",
-    lineHeight: 20,
-  },
-});

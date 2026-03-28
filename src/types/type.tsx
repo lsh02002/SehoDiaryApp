@@ -78,3 +78,13 @@ export type RNFileType = {
   type?: string;
   size?: number;
 };
+
+export type RootStackParamList = {
+  MainTabs: undefined;
+  Login: undefined;
+  Signup: undefined;
+  DiaryCreate: undefined;
+  DiaryList: undefined;
+  DiaryEdit: { diaryId: number };
+  Mypage: undefined;
+};

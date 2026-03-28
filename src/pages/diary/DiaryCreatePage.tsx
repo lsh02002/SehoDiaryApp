@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
-import { createDiaryApi, showToast } from '../../api/sehodiary-api';
+import { createDiaryApi } from '../../api/sehodiary-api';
 import TextInput from '../../components/react-native-form/TextInput';
 import { TwoDiv } from '../../components/react-native-form/TwoDiv';
 import DateInput from '../../components/react-native-form/DateInput';
@@ -17,6 +17,7 @@ import ImageInput from '../../components/react-native-form/ImageInput';
 import ConfirmButton from '../../components/react-native-form/ConfirmButton';
 import { DiaryRequestType, RNFileType } from '../../types/type';
 import Layout from '../../layouts/Layout';
+import { showToast } from '../../layouts/Toast';
 
 export default function DiaryCreatePage() {
   const navigation = useNavigation<any>();

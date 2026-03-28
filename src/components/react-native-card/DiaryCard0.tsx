@@ -14,7 +14,7 @@ import { useWindowDimensions } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { DiaryResponseType } from '../../types/type';
+import { DiaryResponseType, RootStackParamList } from '../../types/type';
 import { useLogin } from '../../context/LoginContext';
 import {
   deleteLikeApi,
@@ -24,15 +24,6 @@ import {
 } from '../../api/sehodiary-api';
 import ImageCard from './ImageCard';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
-export type RootStackParamList = {
-  MainTabs: undefined;
-  Login: undefined;
-  Signup: undefined;
-  DiaryCreate: undefined;
-  DiaryList: undefined;
-  DiaryEdit: { diaryId: number };
-};
 
 type DiaryListNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -147,7 +138,11 @@ const DiaryCard0 = ({ diary0 }: { diary0: DiaryResponseType }) => {
               <Text>{diary0?.emoji}</Text>
 
               <Pressable onPress={handleOpenComment} hitSlop={8}>
-                <Feather name="message-circle" size={18} color="#374151" />
+                <Feather
+                  name="chatbox-ellipses-outline"
+                  size={18}
+                  color="#374151"
+                />
               </Pressable>
               <Text style={styles.metaText}>({diary0?.commentsCount})</Text>
 

@@ -6,13 +6,13 @@ import {
   getLikingNicknameByDiaryApi,
   getOneDiaryApi,
   insertLikeApi,
-  isLikedApi,
-  showToast,
+  isLikedApi,  
 } from '../../api/sehodiary-api';
 import {
   DiaryRequestType,
   ImageResponseType,
   RNFileType,
+  RootStackParamList,
 } from '../../types/type';
 import { useLogin } from '../../context/LoginContext';
 import { TwoDiv } from '../../components/react-native-form/TwoDiv';
@@ -30,7 +30,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import Layout from '../../layouts/Layout';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../components/react-native-card/DiaryCard0';
+import { showToast } from '../../layouts/Toast';
 
 const DiaryEditPage = ({
   route,

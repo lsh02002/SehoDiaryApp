@@ -3,8 +3,8 @@ import { Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLogin } from '../context/LoginContext';
-import HomeScreen from '../pages/home/HomeScreen';
-import MyPageScreen from '../pages/mypage/MypageScreen';
+import MyPage from '../pages/mypage/MyPage';
+import DiaryListPage from '../pages/diary/DiaryListPage';
 
 const Tab = createBottomTabNavigator();
 
@@ -28,7 +28,7 @@ const BottomTabNavigator = () => {
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '600',          
+          fontWeight: '600',
         },
         tabBarActiveTintColor: '#0d6efd',
         tabBarInactiveTintColor: '#6c757d',
@@ -36,9 +36,10 @@ const BottomTabNavigator = () => {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={DiaryListPage}
         options={{
           tabBarLabel: '홈',
+          // eslint-disable-next-line react/no-unstable-nested-components
           tabBarIcon: ({ color }) => (
             <Image
               source={require('../assets/home.svg')}
@@ -46,16 +47,17 @@ const BottomTabNavigator = () => {
               resizeMode="contain"
             />
           ),
-        }}        
+        }}
       />
 
       {isLogin && (
         <Tab.Screen
           name="MyPage"
-          component={MyPageScreen}
+          component={MyPage}
           initialParams={{ tab: 'info' }}
           options={{
             tabBarLabel: '마이페이지',
+            // eslint-disable-next-line react/no-unstable-nested-components
             tabBarIcon: ({ color }) => (
               <Image
                 source={require('../assets/dashboard.svg')}

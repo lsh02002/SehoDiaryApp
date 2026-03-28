@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,8 @@ import { BackwardButton } from '../components/react-native-form/BackwardButton';
 import AddDiaryButton from '../components/react-native-form/AddDiaryButton';
 import { useNavigation } from '@react-navigation/native';
 import CommentPage from '../pages/comment/CommentPage';
+import { useLogin } from '../context/LoginContext';
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 interface Props {
   appName?: string;
@@ -21,7 +23,7 @@ interface Props {
 }
 
 export default function Layout({ appName = '앱', children }: Props) {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen } = useLogin();
   const navigation = useNavigation<any>();
 
   return (
@@ -57,7 +59,9 @@ export default function Layout({ appName = '앱', children }: Props) {
             </View>
 
             <View style={styles.sidebarContent}>
-              <CommentPage />
+              <RootSiblingParent>
+                <CommentPage />
+              </RootSiblingParent>
             </View>
           </View>
         </Modal>

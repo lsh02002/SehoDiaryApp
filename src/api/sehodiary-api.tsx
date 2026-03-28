@@ -1,30 +1,9 @@
 import axios from 'axios';
 import { BASE_URL } from './BASE_URL';
-import Toast from 'react-native-toast-message';
 import { CommentRequestType, UserSignupType } from '../types/type';
 import { DEBUG } from './DEBUG';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-type ToastType = 'success' | 'error' | 'info' | 'warning';
-
-let activeToast = '';
-
-export const showToast = (message: string, type: ToastType = 'error') => {
-  // 같은 메시지 중복 방지
-  if (activeToast === message) return;
-
-  activeToast = message;
-
-  Toast.show({
-    type,
-    text1: message,
-    position: 'bottom',
-    visibilityTime: 3000,
-    onHide: () => {
-      activeToast = '';
-    },
-  });
-};
+import { showToast } from '../layouts/Toast';
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -39,10 +18,7 @@ api.interceptors.request.use(
       config.headers.set('accessToken', accessToken);
       config.headers.set('refreshToken', refreshToken);
     }
-    console.log(
-      'REQ headers JSON =',
-      config.headers.toJSON?.() ?? config.headers,
-    );
+
     return config;
   },
   error => Promise.reject(error),
@@ -147,7 +123,7 @@ const putCommentByIdApi = async (
   commentId: number,
   request: CommentRequestType,
 ) => {
-  return api.post(`/comment/${commentId}`, request);
+  return api.put(`/comment/${commentId}`, request);
 };
 
 const deleteCommentByIdApi = async (commentId: number) => {

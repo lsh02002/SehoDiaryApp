@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Alert,
+import {  
   Pressable,
   StyleSheet,
   Text,
@@ -23,7 +22,7 @@ const CommentCreateCard = ({ diaryId }: Props) => {
 
   React.useEffect(() => {
     AsyncStorage.getItem('nickname')
-      .then((value) => setNickname(value ?? ''))
+      .then(value => setNickname(value ?? ''))
       .catch(() => setNickname(''));
   }, []);
 
@@ -34,18 +33,18 @@ const CommentCreateCard = ({ diaryId }: Props) => {
     };
 
     createCommentApi(data)
-      .then((res) => {
-        setCommentList((prev) => {
+      .then(res => {
+        setCommentList(prev => {
           if (prev === undefined) return prev;
           return [...prev, res.data];
         });
 
-        setMyCommentList((prev) => {
+        setMyCommentList(prev => {
           if (prev === undefined) return prev;
           return [...prev, res.data];
         });
 
-        setDiary((prev) => {
+        setDiary(prev => {
           if (prev === undefined) return prev;
           return {
             ...prev,
@@ -55,9 +54,7 @@ const CommentCreateCard = ({ diaryId }: Props) => {
 
         setContent('');
       })
-      .catch(() => {
-        Alert.alert('오류', '댓글 등록 중 문제가 발생했습니다.');
-      });
+      .catch(() => {});
   };
 
   return (
@@ -78,7 +75,11 @@ const CommentCreateCard = ({ diaryId }: Props) => {
 
           <View style={styles.sideBox}>
             <Text style={styles.label}>댓글 작성자</Text>
-            <TextInput editable={false} value={nickname} style={styles.disabledInput} />
+            <TextInput
+              editable={false}
+              value={nickname}
+              style={styles.disabledInput}
+            />
             <Pressable style={styles.button} onPress={handleCreateComment}>
               <Text style={styles.buttonText}>댓글 입력</Text>
             </Pressable>
