@@ -8,6 +8,7 @@ import {
   Pressable,
   ScrollView,
   Button,
+  Alert,
 } from 'react-native';
 import { Menu } from 'lucide-react-native';
 import { BackwardButton } from '../components/react-native-form/BackwardButton';
@@ -16,6 +17,8 @@ import { useNavigation } from '@react-navigation/native';
 import CommentPage from '../pages/comment/CommentPage';
 import { useLogin } from '../context/LoginContext';
 import { RootSiblingParent } from 'react-native-root-siblings';
+import { UserLogoutApi } from '../api/sehodiary-api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
   appName?: string;
@@ -23,8 +26,43 @@ interface Props {
 }
 
 export default function Layout({ appName = '앱', children }: Props) {
-  const { open, setOpen } = useLogin();
+  const { open, setOpen, isLogin, setIsLogin } = useLogin();
   const navigation = useNavigation<any>();
+
+  const onLogoutSubmit = async () => {
+    Alert.alert(
+      '로그아웃',
+      '로그아웃 하시겠습니까?',
+      [
+        {
+          text: '취소',
+          style: 'cancel',
+        },
+        {
+          text: '확인',
+          onPress: () => {
+            (async () => {
+              try {
+                await UserLogoutApi();
+              } catch (e) {
+                console.log('로그아웃 API 실패:', e);
+              } finally {
+                await AsyncStorage.multiRemove([
+                  'userId',
+                  'nickname',
+                  'accessToken',
+                  'refreshToken',
+                ]);
+
+                setIsLogin(false);
+              }
+            })();
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
 
   return (
     <View style={styles.safeArea}>
@@ -70,14 +108,20 @@ export default function Layout({ appName = '앱', children }: Props) {
           <View style={styles.headerInner}>
             <Text style={styles.appName}>{appName}</Text>
             <View style={styles.auth}>
-              <Button
-                title="로그인"
-                onPress={() => navigation.navigate('Login')}
-              />
-              <Button
-                title="회원가입"
-                onPress={() => navigation.navigate('Signup')}
-              />
+              {isLogin ? (
+                <Button title="로그아웃" onPress={onLogoutSubmit} />
+              ) : (
+                <>
+                  <Button
+                    title="로그인"
+                    onPress={() => navigation.navigate('Login')}
+                  />
+                  <Button
+                    title="회원가입"
+                    onPress={() => navigation.navigate('Signup')}
+                  />
+                </>
+              )}
             </View>
           </View>
         </View>
@@ -86,14 +130,16 @@ export default function Layout({ appName = '앱', children }: Props) {
           contentContainerStyle={styles.mainContent}
           scrollEventThrottle={16}
         >
-          <BackwardButton onPress={() => {}} />
+          <BackwardButton />
           {children}
         </ScrollView>
 
-        <AddDiaryButton
-          title="+"
-          onPress={() => navigation.navigate('DiaryCreate')}
-        />
+        {isLogin && (
+          <AddDiaryButton
+            title="+"
+            onPress={() => navigation.navigate('DiaryCreate')}
+          />
+        )}
       </View>
     </View>
   );

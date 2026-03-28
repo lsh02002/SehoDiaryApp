@@ -27,8 +27,8 @@ const AddDiaryButton = ({ disabled, title, onPress }: Props) => {
 const styles = StyleSheet.create({
   button: {
     position: 'absolute',
-    right: 10,
-    bottom: 80,
+    right: 30,
+    bottom: 30,
     zIndex: 200,
     width: 50,
     height: 50,

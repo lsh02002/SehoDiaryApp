@@ -1,11 +1,16 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { colors } from '../../themes/theme';
+import { useNavigation } from '@react-navigation/native';
 
-export function BackwardButton({ onPress }: { onPress: () => void }) {
+export function BackwardButton() {
+  const navigation = useNavigation();
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        if (navigation.canGoBack()) navigation.goBack();
+      }}
       accessibilityLabel="뒤로가기"
       style={styles.button}
     >

@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import {
   deleteLikeApi,
   editDiaryApi,
   getLikingNicknameByDiaryApi,
   getOneDiaryApi,
   insertLikeApi,
-  isLikedApi,  
+  isLikedApi,
 } from '../../api/sehodiary-api';
 import {
   DiaryRequestType,
@@ -191,126 +199,136 @@ const DiaryEditPage = ({
   };
 
   return (
-    <Layout>
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Text style={styles.pageTitle}>일기 작성</Text>
+    <KeyboardAvoidingView
+      // eslint-disable-next-line react-native/no-inline-styles
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <Layout>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={styles.pageTitle}>일기 작성</Text>
 
-        <TwoDiv>
-          <TextInput
-            disabled
-            name="id"
-            title="아이디"
-            data={String(id)}
-            setData={v => setId(Number(v))}
+          <TwoDiv>
+            <TextInput
+              disabled
+              name="id"
+              title="아이디"
+              data={String(id)}
+              setData={v => setId(Number(v))}
+            />
+            <TextInput
+              name="title"
+              title="제목"
+              data={title}
+              setData={setTitle}
+            />
+          </TwoDiv>
+
+          <TwoDiv>
+            <TextInput
+              disabled
+              name="nickname"
+              title="작성자"
+              data={nickname}
+              setData={() => {}}
+            />
+            <DateInput title="날짜" selected={date} setSelected={setDate} />
+          </TwoDiv>
+
+          <TwoDiv>
+            <TextInput
+              name="weather"
+              title="날씨"
+              data={weather}
+              setData={setWeather}
+            />
+            <SelectInput
+              name="visibility"
+              title="공개여부"
+              value={visibility}
+              setValue={setVisibility}
+              options={visibilityOptions}
+            />
+          </TwoDiv>
+
+          <PellRichEditorInput
+            title="내용"
+            data={content}
+            setData={setContent}
           />
-          <TextInput
-            name="title"
-            title="제목"
-            data={title}
-            setData={setTitle}
-          />
-        </TwoDiv>
 
-        <TwoDiv>
-          <TextInput
-            disabled
-            name="nickname"
-            title="작성자"
-            data={nickname}
-            setData={() => {}}
-          />
-          <DateInput title="날짜" selected={date} setSelected={setDate} />
-        </TwoDiv>
+          <View style={styles.actionRow}>
+            <Pressable
+              onPress={handleOpenComment}
+              style={styles.iconButton}
+              hitSlop={8}
+            >
+              <FontAwesome6 name="comment-dots" size={18} />
+            </Pressable>
 
-        <TwoDiv>
-          <TextInput
-            name="weather"
-            title="날씨"
-            data={weather}
-            setData={setWeather}
-          />
-          <SelectInput
-            name="visibility"
-            title="공개여부"
-            value={visibility}
-            setValue={setVisibility}
-            options={visibilityOptions}
-          />
-        </TwoDiv>
+            <Text style={styles.countText}>({diary?.commentsCount})</Text>
 
-        <PellRichEditorInput title="내용" data={content} setData={setContent} />
+            <Pressable
+              onPress={handleLikeClick}
+              onPressIn={() => setIsMouseOverOnce(true)}
+              onPressOut={() => setIsMouseOverOnce(false)}
+              style={styles.iconButton}
+              hitSlop={8}
+            >
+              {isLiked ? (
+                <AntDesign name="like1" size={18} />
+              ) : (
+                <AntDesign name="like2" size={18} />
+              )}
+            </Pressable>
 
-        <View style={styles.actionRow}>
-          <Pressable
-            onPress={handleOpenComment}
-            style={styles.iconButton}
-            hitSlop={8}
-          >
-            <FontAwesome6 name="comment-dots" size={18} />
-          </Pressable>
+            <View style={styles.likesWrapper}>
+              <Text style={styles.countText}>{likesCount}</Text>
 
-          <Text style={styles.countText}>({diary?.commentsCount})</Text>
-
-          <Pressable
-            onPress={handleLikeClick}
-            onPressIn={() => setIsMouseOverOnce(true)}
-            onPressOut={() => setIsMouseOverOnce(false)}
-            style={styles.iconButton}
-            hitSlop={8}
-          >
-            {isLiked ? (
-              <AntDesign name="like1" size={18} />
-            ) : (
-              <AntDesign name="like2" size={18} />
-            )}
-          </Pressable>
-
-          <View style={styles.likesWrapper}>
-            <Text style={styles.countText}>{likesCount}</Text>
-
-            {isMouseOverOnce && nicknameList.length > 0 && (
-              <View style={styles.tooltip}>
-                {nicknameList.map((list, index) => (
-                  <Text key={index} style={styles.nicknameText}>
-                    {list}
-                  </Text>
-                ))}
-              </View>
-            )}
+              {isMouseOverOnce && nicknameList.length > 0 && (
+                <View style={styles.tooltip}>
+                  {nicknameList.map((list, index) => (
+                    <Text key={index} style={styles.nicknameText}>
+                      {list}
+                    </Text>
+                  ))}
+                </View>
+              )}
+            </View>
           </View>
-        </View>
 
-        <EmotionSelectInput
-          name="emotion"
-          title="이모션"
-          data={emoji ?? ''}
-          setData={setEmoji}
-        />
-
-        <CheckboxInput
-          name="isimageshown"
-          title="이미지입력창"
-          checked={isImagesShown}
-          setChecked={setIsImagesShown}
-        />
-
-        {isImagesShown && (
-          <ImageInput
-            name="images"
-            title="이미지들"
-            data={images ?? []}
-            setData={setImages}
-            previewUrls={imageUrls}
-            setPreviewUrls={setImageUrls}
+          <EmotionSelectInput
+            name="emotion"
+            title="이모션"
+            data={emoji ?? ''}
+            setData={setEmoji}
           />
-        )}
 
-        <ConfirmButton title="일기 수정" onPress={handleEditDiary} />
-      </ScrollView>
-    </Layout>
+          <CheckboxInput
+            name="isimageshown"
+            title="이미지입력창"
+            checked={isImagesShown}
+            setChecked={setIsImagesShown}
+          />
+
+          {isImagesShown && (
+            <ImageInput
+              name="images"
+              title="이미지들"
+              data={images ?? []}
+              setData={setImages}
+              previewUrls={imageUrls}
+              setPreviewUrls={setImageUrls}
+            />
+          )}
+
+          <ConfirmButton title="일기 수정" onPress={handleEditDiary} />
+        </ScrollView>
+      </Layout>
+    </KeyboardAvoidingView>
   );
 };
 

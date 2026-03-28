@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -17,6 +18,7 @@ import PasswordInput from '../../components/react-native-form/PasswordInput';
 import ConfirmButton from '../../components/react-native-form/ConfirmButton';
 import CheckboxInput from '../../components/react-native-form/CheckboxInput';
 import { UserSignupType } from '../../types/type';
+import Layout from '../../layouts/Layout';
 
 const SignupPage = () => {
   const navigation = useNavigation<any>();
@@ -57,71 +59,76 @@ const SignupPage = () => {
   return (
     <KeyboardAvoidingView
       style={styles.root}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.container}>
-        <View style={styles.headerRow}>
-          <View style={styles.titleRow}>
-            <FontAwesome6 name="registered" size={20} />
-            <Text style={styles.title}> 회원가입</Text>
+      <Layout>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.headerRow}>
+            <View style={styles.titleRow}>
+              <FontAwesome6 name="registered" size={20} />
+              <Text style={styles.title}> 회원가입</Text>
+            </View>
+
+            <TouchableOpacity onPress={moveToLogin}>
+              <Text style={styles.linkText}>이미 계정이 있으세요?</Text>
+            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={moveToLogin}>
-            <Text style={styles.linkText}>이미 계정이 있으세요?</Text>
-          </TouchableOpacity>
-        </View>
+          <View style={styles.inputBox}>
+            <TextInput
+              name="email"
+              title="이메일 주소"
+              data={email}
+              setData={setEmail}
+            />
+          </View>
 
-        <View style={styles.inputBox}>
-          <TextInput
-            name="email"
-            title="이메일 주소"
-            data={email}
-            setData={setEmail}
-          />
-        </View>
+          <View style={styles.inputBox}>
+            <TextInput
+              name="nickname"
+              title="닉네임"
+              data={nickname}
+              setData={setNickname}
+            />
+          </View>
 
-        <View style={styles.inputBox}>
-          <TextInput
-            name="nickname"
-            title="닉네임"
-            data={nickname}
-            setData={setNickname}
-          />
-        </View>
+          <View style={styles.inputBox}>
+            <PasswordInput
+              name="password"
+              title="비밀번호"
+              isPasswordVisible={isPasswordVisible}
+              data={password}
+              setData={setPassword}
+            />
+          </View>
 
-        <View style={styles.inputBox}>
-          <PasswordInput
-            name="password"
-            title="비밀번호"
-            isPasswordVisible={isPasswordVisible}
-            data={password}
-            setData={setPassword}
-          />
-        </View>
+          <View style={styles.inputBox}>
+            <PasswordInput
+              name="passwordConfirm"
+              title="비밀번호 확인"
+              isPasswordVisible={isPasswordVisible}
+              data={passwordConfirm}
+              setData={setPasswordConfirm}
+            />
+          </View>
 
-        <View style={styles.inputBox}>
-          <PasswordInput
-            name="passwordConfirm"
-            title="비밀번호 확인"
-            isPasswordVisible={isPasswordVisible}
-            data={passwordConfirm}
-            setData={setPasswordConfirm}
-          />
-        </View>
+          <View style={styles.inputBox}>
+            <CheckboxInput
+              name="istext"
+              title="암호보기"
+              checked={isPasswordVisible}
+              setChecked={setIsPasswordVisible}
+            />
+          </View>
 
-        <View style={styles.inputBox}>
-          <CheckboxInput
-            name="istext"
-            title="암호보기"
-            checked={isPasswordVisible}
-            setChecked={setIsPasswordVisible}
-          />
-        </View>
-
-        <View style={styles.buttonBox}>
-          <ConfirmButton title="회원 가입" onPress={onSignupSubmit} />
-        </View>
-      </View>
+          <View style={styles.buttonBox}>
+            <ConfirmButton title="회원 가입" onPress={onSignupSubmit} />
+          </View>
+        </ScrollView>
+      </Layout>
     </KeyboardAvoidingView>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -16,6 +17,7 @@ import TextInput from '../../components/react-native-form/TextInput';
 import PasswordInput from '../../components/react-native-form/PasswordInput';
 import ConfirmButton from '../../components/react-native-form/ConfirmButton';
 import { useLogin } from '../../context/LoginContext';
+import Layout from '../../layouts/Layout';
 
 const LoginPage = () => {
   const navigation = useNavigation<any>();
@@ -41,49 +43,54 @@ const LoginPage = () => {
     }
   };
 
-  const moveToRegister = () => {
+  const moveToSignup = () => {
     navigation.navigate('Signup');
   };
 
   return (
     <KeyboardAvoidingView
       style={styles.root}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.container}>
-        <View style={styles.headerRow}>
-          <View style={styles.titleRow}>
-            <SimpleLineIcons name="login" size={20} />
-            <Text style={styles.title}> 로그인</Text>
+      <Layout>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.headerRow}>
+            <View style={styles.titleRow}>
+              <SimpleLineIcons name="login" size={20} />
+              <Text style={styles.title}> 로그인</Text>
+            </View>
+
+            <TouchableOpacity onPress={moveToSignup}>
+              <Text style={styles.linkText}>계정이 없으세요?</Text>
+            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity onPress={moveToRegister}>
-            <Text style={styles.linkText}>계정이 없으세요?</Text>
-          </TouchableOpacity>
-        </View>
+          <View style={styles.inputBox}>
+            <TextInput
+              name="email"
+              title="이메일 주소"
+              data={email}
+              setData={setEmail}
+            />
+          </View>
 
-        <View style={styles.inputBox}>
-          <TextInput
-            name="email"
-            title="이메일 주소"
-            data={email}
-            setData={setEmail}
-          />
-        </View>
+          <View style={styles.inputBox}>
+            <PasswordInput
+              name="password"
+              title="비밀 번호"
+              data={password}
+              setData={setPassword}
+            />
+          </View>
 
-        <View style={styles.inputBox}>
-          <PasswordInput
-            name="password"
-            title="비밀 번호"
-            data={password}
-            setData={setPassword}
-          />
-        </View>
-
-        <View style={styles.buttonBox}>
-          <ConfirmButton title="로그인" onPress={onLoginSubmit} />
-        </View>
-      </View>
+          <View style={styles.buttonBox}>
+            <ConfirmButton title="로그인" onPress={onLoginSubmit} />
+          </View>
+        </ScrollView>
+      </Layout>
     </KeyboardAvoidingView>
   );
 };

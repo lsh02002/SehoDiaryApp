@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
@@ -86,78 +93,84 @@ export default function DiaryCreatePage() {
   };
 
   return (
-    <Layout>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.pageTitle}>일기 작성</Text>
+    <KeyboardAvoidingView
+      // eslint-disable-next-line react-native/no-inline-styles
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <Layout>
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.pageTitle}>일기 작성</Text>
 
-        <View style={styles.section}>
-          <TextInput
-            name="title"
-            title="제목"
-            data={title}
-            setData={setTitle}
-          />
-          <TwoDiv>
+          <View style={styles.section}>
             <TextInput
-              disabled
-              name="nickname"
-              title="작성자"
-              data={nickname}
-              setData={() => {}}
+              name="title"
+              title="제목"
+              data={title}
+              setData={setTitle}
             />
-            <DateInput title="날짜" selected={date} setSelected={setDate} />
-          </TwoDiv>
-          <TwoDiv>
-            <TextInput
-              name="weather"
-              title="날씨"
-              data={weather}
-              setData={setWeather}
+            <TwoDiv>
+              <TextInput
+                disabled
+                name="nickname"
+                title="작성자"
+                data={nickname}
+                setData={() => {}}
+              />
+              <DateInput title="날짜" selected={date} setSelected={setDate} />
+            </TwoDiv>
+            <TwoDiv>
+              <TextInput
+                name="weather"
+                title="날씨"
+                data={weather}
+                setData={setWeather}
+              />
+              <SelectInput
+                name="visibility"
+                title="공개여부"
+                value={visibility}
+                setValue={setVisibility}
+                options={visibilityOptions}
+              />
+            </TwoDiv>
+            <PellRichEditorInput
+              title="내용"
+              data={content}
+              setData={setContent}
             />
-            <SelectInput
-              name="visibility"
-              title="공개여부"
-              value={visibility}
-              setValue={setVisibility}
-              options={visibilityOptions}
+            <EmotionSelectInput
+              name="emotion"
+              title="이모션"
+              data={emoji ?? ''}
+              setData={setEmoji}
             />
-          </TwoDiv>
-          <PellRichEditorInput
-            title="내용"
-            data={content}
-            setData={setContent}
-          />
-          <EmotionSelectInput
-            name="emotion"
-            title="이모션"
-            data={emoji ?? ''}
-            setData={setEmoji}
-          />
-          <CheckboxInput
-            name="isimageshown"
-            title="이미지입력창"
-            checked={isImagesShown}
-            setChecked={setIsImagesShown}
-          />
-          {isImagesShown && (
-            <ImageInput
-              name="images"
-              title="이미지들"
-              data={images ?? []}
-              setData={setImages}
-              previewUrls={imageUrls}
-              setPreviewUrls={setImageUrls}
+            <CheckboxInput
+              name="isimageshown"
+              title="이미지입력창"
+              checked={isImagesShown}
+              setChecked={setIsImagesShown}
             />
-          )}
+            {isImagesShown && (
+              <ImageInput
+                name="images"
+                title="이미지들"
+                data={images ?? []}
+                setData={setImages}
+                previewUrls={imageUrls}
+                setPreviewUrls={setImageUrls}
+              />
+            )}
 
-          <ConfirmButton
-            title="일기 생성"
-            onPress={handleCreateDiary}
-            disabled={isSubmitting}
-          />
-        </View>
-      </ScrollView>
-    </Layout>
+            <ConfirmButton
+              title="일기 생성"
+              onPress={handleCreateDiary}
+              disabled={isSubmitting}
+            />
+          </View>
+        </ScrollView>
+      </Layout>
+    </KeyboardAvoidingView>
   );
 }
 

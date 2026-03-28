@@ -1,11 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,  
-  View,
-} from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RenderHTML from 'react-native-render-html';
 import { useWindowDimensions } from 'react-native';
@@ -71,7 +65,6 @@ const CommentCard1 = ({ comment, handleEditSave, handleRemoveSave }: Props) => {
             <View style={styles.flex1}>
               {isEditing ? (
                 <View>
-                  <Text style={styles.label}>내용</Text>
                   <PellRichEditorInput
                     title="내용"
                     data={content}
