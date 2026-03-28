@@ -134,12 +134,10 @@ export default function Layout({ appName = '앱', children }: Props) {
           {children}
         </ScrollView>
 
-        {isLogin && (
-          <AddDiaryButton
-            title="+"
-            onPress={() => navigation.navigate('DiaryCreate')}
-          />
-        )}
+        <AddDiaryButton
+          title="+"
+          onPress={() => navigation.navigate('DiaryCreate')}
+        />
       </View>
     </View>
   );

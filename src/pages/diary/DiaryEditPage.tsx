@@ -146,9 +146,7 @@ const DiaryEditPage = ({
       .then(() => {
         showToast('글 수정이 되었습니다.', 'success');
       })
-      .catch(err => {
-        console.log(err);
-      });
+      .catch(() => {});
   };
 
   const handleLikeClick = () => {
