@@ -63,8 +63,7 @@ const CommentCard0 = ({ comment, handleEditSave }: Props) => {
 
             <View style={styles.flex1}>
               {isEditing ? (
-                <View>
-                  <Text style={styles.label}>내용</Text>
+                <View>                  
                   <PellRichEditorInput
                     title="내용"
                     data={content}

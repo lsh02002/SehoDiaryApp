@@ -33,14 +33,14 @@ export type PellRichEditorInputRef = {
 };
 
 const PellRichEditorInput = forwardRef<PellRichEditorInputRef, Props>(
-  ({ disabled = false, title, data, setData, rows = 8, onPressNext }, ref) => {
+  ({ disabled = false, title, data, setData, rows = 2, onPressNext }, ref) => {
     const editorRef = useRef<RichEditor>(null);
     const htmlRef = useRef(data || '');
     const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [initialHtml, setInitialHtml] = useState(data || '');
 
-    const editorHeight = useMemo(() => Math.max(rows, 8) * 28, [rows]);
+    const editorHeight = useMemo(() => Math.max(rows, 1) * 28, [rows]);
 
     useEffect(() => {
       htmlRef.current = data || '';
@@ -174,7 +174,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundSoft,
   },
   editor: {
-    minHeight: 240,
     backgroundColor: colors.background,
   },
   selectedButton: {

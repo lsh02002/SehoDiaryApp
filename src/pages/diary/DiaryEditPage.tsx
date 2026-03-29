@@ -290,6 +290,7 @@ const DiaryEditPage = ({
             data={content}
             setData={setContent}
             onPressNext={() => emotionSelectRef.current?.focus()}
+            rows={8}
           />
 
           <View style={styles.actionRow}>

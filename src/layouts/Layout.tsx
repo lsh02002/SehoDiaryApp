@@ -44,8 +44,6 @@ export default function Layout({ appName = '앱', children }: Props) {
             (async () => {
               try {
                 await UserLogoutApi();
-              } catch (e) {
-                console.log('로그아웃 API 실패:', e);
               } finally {
                 await AsyncStorage.multiRemove([
                   'userId',

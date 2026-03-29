@@ -30,8 +30,8 @@ export const LoginProvider = ({ children }: { children: ReactNode }) => {
   const [isLogin, setIsLogin] = useState(false);
   const [open, setOpen] = useState(false);
   const [diary, setDiary] = useState<DiaryResponseType>();
-  const [commentList, setCommentList] = useState<CommentResponseType[]>();
-  const [myCommentList, setMyCommentList] = useState<CommentResponseType[]>();
+  const [commentList, setCommentList] = useState<CommentResponseType[] | undefined>(undefined);
+  const [myCommentList, setMyCommentList] = useState<CommentResponseType[] | undefined>(undefined);
 
   const value = useMemo<LoginContextValue>(
     () => ({

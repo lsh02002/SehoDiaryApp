@@ -22,7 +22,9 @@ import SelectInput, {
 import PellRichEditorInput, {
   PellRichEditorInputRef,
 } from '../../components/react-native-form/PellRichEditorInput';
-import EmotionSelectInput, { EmotionSelectInputRef } from '../../components/react-native-form/EmotionSelectInput';
+import EmotionSelectInput, {
+  EmotionSelectInputRef,
+} from '../../components/react-native-form/EmotionSelectInput';
 import CheckboxInput from '../../components/react-native-form/CheckboxInput';
 import ImageInput, {
   ImageInputRef,
@@ -169,7 +171,8 @@ export default function DiaryCreatePage() {
               title="내용"
               data={content}
               setData={setContent}
-              onPressNext={()=>emotionSelectRef.current?.focus()}
+              onPressNext={() => emotionSelectRef.current?.focus()}
+              rows={8}
             />
             <EmotionSelectInput
               ref={emotionSelectRef}

@@ -20,12 +20,13 @@ const CommentPage = () => {
   useEffect(() => {
     if (diary?.id) {
       getCommentsByDiaryApi(diary.id)
-        .then(res => {
+        .then(res => {          
           setCommentList(res.data);
         })
         .catch(() => {});
     }
-  }, [diary?.id, setCommentList]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [diary?.id]);
 
   const handleEditSave = async (commentId: number, content: string) => {
     const data: CommentRequestType = {

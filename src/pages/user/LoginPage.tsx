@@ -44,9 +44,7 @@ const LoginPage = () => {
 
       setIsLogin(true);
       if (navigation.canGoBack()) navigation.goBack();
-    } catch (e) {
-      console.log('login error =', e);
-    }
+    } catch {}
   };
 
   const moveToSignup = () => {
