@@ -2,11 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ActivityLogResponseType } from '../../types/type';
 
-type Props = {
-  log: ActivityLogResponseType;
-};
-
-const ActivityLogCard = ({ log }: Props) => {
+const ActivityLogCard = ({ log }: { log: ActivityLogResponseType }) => {
   return (
     <View style={styles.card}>
       <View style={styles.body}>

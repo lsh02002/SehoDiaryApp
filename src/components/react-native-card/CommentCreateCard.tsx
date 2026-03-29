@@ -1,21 +1,11 @@
 import React, { useState } from 'react';
-import {  
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommentRequestType } from '../../types/type';
 import { createCommentApi } from '../../api/sehodiary-api';
 import { useLogin } from '../../context/LoginContext';
 
-type Props = {
-  diaryId: number;
-};
-
-const CommentCreateCard = ({ diaryId }: Props) => {
+const CommentCreateCard = ({ diaryId }: { diaryId: number }) => {
   const { setDiary, setCommentList, setMyCommentList } = useLogin();
   const [nickname, setNickname] = useState('');
   const [content, setContent] = useState('');

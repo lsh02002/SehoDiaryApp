@@ -4,19 +4,16 @@ import RenderHTML from 'react-native-render-html';
 import { useWindowDimensions } from 'react-native';
 import { DiaryResponseType } from '../../types/type';
 
-type Props = {
-  diary: DiaryResponseType | undefined;
-};
-
 const formatDate = (value?: string) => {
   if (!value) return '';
   const date = new Date(value);
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
-    date.getDate(),
-  ).padStart(2, '0')}`;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    '0',
+  )}-${String(date.getDate()).padStart(2, '0')}`;
 };
 
-const DiaryCard1 = ({ diary }: Props) => {
+const DiaryCard1 = ({ diary }: { diary: DiaryResponseType | undefined }) => {
   const { width } = useWindowDimensions();
   const date = useMemo(() => formatDate(diary?.date), [diary?.date]);
 
@@ -29,7 +26,10 @@ const DiaryCard1 = ({ diary }: Props) => {
             <Text style={styles.title}>{diary?.title}</Text>
           </View>
 
-          <RenderHTML contentWidth={width - 48} source={{ html: diary?.content ?? '' }} />
+          <RenderHTML
+            contentWidth={width - 48}
+            source={{ html: diary?.content ?? '' }}
+          />
 
           <View style={styles.bottomRow}>
             <Text style={styles.metaText}>작성자: {diary?.nickname}</Text>

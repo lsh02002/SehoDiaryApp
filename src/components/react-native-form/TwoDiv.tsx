@@ -10,8 +10,11 @@ export const TwoDiv = ({ children }: TwoDivProps) => {
 
   return (
     <View style={styles.row}>
-      <View style={styles.col}>{childArray[0] ?? null}</View>
-      <View style={styles.col}>{childArray[1] ?? null}</View>
+      {childArray.map((array, index) => (
+        <View key={index} style={styles.col}>
+          {array}
+        </View>
+      ))}
     </View>
   );
 };

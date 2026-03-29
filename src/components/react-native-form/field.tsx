@@ -1,5 +1,11 @@
-import React from 'react';
-import { StyleSheet, Text, TextInput as RNTextInput, View } from 'react-native';
+import React, { forwardRef } from 'react';
+import {
+  StyleSheet,
+  Text,
+  TextInput as RNTextInput,
+  TextInputProps,
+  View,
+} from 'react-native';
 import { colors } from '../../themes/theme';
 
 export const fieldStyles = StyleSheet.create({
@@ -44,4 +50,8 @@ export const FieldWrapper = ({ children }: { children: React.ReactNode }) => (
   <View style={fieldStyles.wrapper}>{children}</View>
 );
 
-export const BaseInput = RNTextInput;
+export const BaseInput = forwardRef<RNTextInput, TextInputProps>(
+  (props, ref) => {
+    return <RNTextInput ref={ref} {...props} />;
+  },
+);

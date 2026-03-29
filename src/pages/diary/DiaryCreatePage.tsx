@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput as RNTextInput,
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,11 +17,16 @@ import { TwoDiv } from '../../components/react-native-form/TwoDiv';
 import DateInput from '../../components/react-native-form/DateInput';
 import SelectInput, {
   Option,
+  SelectInputRef,
 } from '../../components/react-native-form/SelectInput';
-import PellRichEditorInput from '../../components/react-native-form/PellRichEditorInput';
-import EmotionSelectInput from '../../components/react-native-form/EmotionSelectInput';
+import PellRichEditorInput, {
+  PellRichEditorInputRef,
+} from '../../components/react-native-form/PellRichEditorInput';
+import EmotionSelectInput, { EmotionSelectInputRef } from '../../components/react-native-form/EmotionSelectInput';
 import CheckboxInput from '../../components/react-native-form/CheckboxInput';
-import ImageInput from '../../components/react-native-form/ImageInput';
+import ImageInput, {
+  ImageInputRef,
+} from '../../components/react-native-form/ImageInput';
 import ConfirmButton from '../../components/react-native-form/ConfirmButton';
 import { DiaryRequestType, RNFileType } from '../../types/type';
 import Layout from '../../layouts/Layout';
@@ -40,6 +46,15 @@ export default function DiaryCreatePage() {
   const [images, setImages] = useState<RNFileType[] | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const titleRef = useRef<RNTextInput | null>(null);
+  const dateRef = useRef<RNTextInput | null>(null);
+  const weatherRef = useRef<RNTextInput | null>(null);
+  const visibilityRef = useRef<SelectInputRef | null>(null);
+  const contentRef = useRef<PellRichEditorInputRef | null>(null);
+  const emotionSelectRef = useRef<EmotionSelectInputRef | null>(null);
+  const checkboxRef = useRef<View | null>(null);
+  const imageInputRef = useRef<ImageInputRef | null>(null);
 
   const visibilityOptions: Option[] = [
     { label: 'PUBLIC', value: 'PUBLIC' },
@@ -104,10 +119,13 @@ export default function DiaryCreatePage() {
 
           <View style={styles.section}>
             <TextInput
+              ref={titleRef}
               name="title"
               title="제목"
               data={title}
               setData={setTitle}
+              returnKeyType="next"
+              onSubmitEditing={() => dateRef.current?.focus()}
             />
             <TwoDiv>
               <TextInput
@@ -117,35 +135,51 @@ export default function DiaryCreatePage() {
                 data={nickname}
                 setData={() => {}}
               />
-              <DateInput title="날짜" selected={date} setSelected={setDate} />
+              <DateInput
+                ref={dateRef}
+                title="날짜"
+                selected={date}
+                setSelected={setDate}
+                returnKeyType="next"
+                onSubmitEditing={() => weatherRef.current?.focus()}
+              />
             </TwoDiv>
             <TwoDiv>
               <TextInput
+                ref={weatherRef}
                 name="weather"
                 title="날씨"
                 data={weather}
                 setData={setWeather}
+                returnKeyType="next"
+                onSubmitEditing={() => visibilityRef.current?.focus()}
               />
               <SelectInput
+                ref={visibilityRef}
                 name="visibility"
                 title="공개여부"
                 value={visibility}
                 setValue={setVisibility}
                 options={visibilityOptions}
+                onPressNext={() => contentRef.current?.focus()}
               />
             </TwoDiv>
             <PellRichEditorInput
+              ref={contentRef}
               title="내용"
               data={content}
               setData={setContent}
+              onPressNext={()=>emotionSelectRef.current?.focus()}
             />
             <EmotionSelectInput
+              ref={emotionSelectRef}
               name="emotion"
               title="이모션"
               data={emoji ?? ''}
               setData={setEmoji}
             />
             <CheckboxInput
+              ref={checkboxRef}
               name="isimageshown"
               title="이미지입력창"
               checked={isImagesShown}
@@ -153,6 +187,7 @@ export default function DiaryCreatePage() {
             />
             {isImagesShown && (
               <ImageInput
+                ref={imageInputRef}
                 name="images"
                 title="이미지들"
                 data={images ?? []}

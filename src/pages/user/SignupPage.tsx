@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput as RNTextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -13,12 +14,12 @@ import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import { useNavigation } from '@react-navigation/native';
 
 import { UserSignupApi } from '../../api/sehodiary-api';
-import TextInput from '../../components/react-native-form/TextInput';
 import PasswordInput from '../../components/react-native-form/PasswordInput';
 import ConfirmButton from '../../components/react-native-form/ConfirmButton';
 import CheckboxInput from '../../components/react-native-form/CheckboxInput';
 import { UserSignupType } from '../../types/type';
 import Layout from '../../layouts/Layout';
+import TextInput from '../../components/react-native-form/TextInput';
 
 const SignupPage = () => {
   const navigation = useNavigation<any>();
@@ -28,6 +29,13 @@ const SignupPage = () => {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const emailRef = useRef<RNTextInput | null>(null);
+  const nicknameRef = useRef<RNTextInput | null>(null);
+  const passwordRef = useRef<RNTextInput | null>(null);
+  const passwordConfirmRef = useRef<RNTextInput | null>(null);
+  const checkboxRef = useRef<View | null>(null);
+  const confirmButtonRef = useRef<View | null>(null);
 
   const onSignupSubmit = async () => {
     await AsyncStorage.multiRemove([
@@ -79,53 +87,71 @@ const SignupPage = () => {
 
           <View style={styles.inputBox}>
             <TextInput
+              ref={emailRef}
               name="email"
               title="이메일 주소"
               data={email}
               setData={setEmail}
+              returnKeyType="next"
+              onSubmitEditing={() => nicknameRef.current?.focus()}
             />
           </View>
 
           <View style={styles.inputBox}>
             <TextInput
+              ref={nicknameRef}
               name="nickname"
               title="닉네임"
               data={nickname}
               setData={setNickname}
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
             />
           </View>
 
           <View style={styles.inputBox}>
             <PasswordInput
+              ref={passwordRef}
               name="password"
               title="비밀번호"
               isPasswordVisible={isPasswordVisible}
               data={password}
               setData={setPassword}
+              returnKeyType="next"
+              onSubmitEditing={() => passwordConfirmRef.current?.focus()}
             />
           </View>
 
           <View style={styles.inputBox}>
             <PasswordInput
+              ref={passwordConfirmRef}
               name="passwordConfirm"
               title="비밀번호 확인"
               isPasswordVisible={isPasswordVisible}
               data={passwordConfirm}
               setData={setPasswordConfirm}
+              returnKeyType="next"
+              onSubmitEditing={() => checkboxRef.current?.focus()}
             />
           </View>
 
           <View style={styles.inputBox}>
             <CheckboxInput
+              ref={checkboxRef}
               name="istext"
               title="암호보기"
               checked={isPasswordVisible}
-              setChecked={setIsPasswordVisible}
+              setChecked={setIsPasswordVisible}              
+              opPressNext={() => confirmButtonRef.current?.focus()}
             />
           </View>
 
           <View style={styles.buttonBox}>
-            <ConfirmButton title="회원 가입" onPress={onSignupSubmit} />
+            <ConfirmButton
+              ref={confirmButtonRef}
+              title="회원 가입"
+              onPress={onSignupSubmit}
+            />
           </View>
         </ScrollView>
       </Layout>

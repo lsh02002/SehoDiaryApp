@@ -24,21 +24,33 @@ const ImageCard = ({ diary, imageUrl }: Props) => {
     <>
       <View style={styles.imageWrapper}>
         <Pressable onPress={() => setImageOpen(true)}>
-          <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
+          <Image
+            source={{ uri: imageUrl }}
+            style={styles.image}
+            resizeMode="cover"
+          />
         </Pressable>
       </View>
 
       {!hasMultipleImages && (
         <View style={styles.warningBox}>
-          <Text style={styles.warningText}>이미지 뷰는 이미지가 2개 이상이어야 합니다.</Text>
+          <Text style={styles.warningText}>
+            이미지 뷰는 이미지가 2개 이상이어야 합니다.
+          </Text>
         </View>
       )}
 
-      <Modal visible={imageOpen && hasMultipleImages} animationType="fade" transparent>
+      <Modal
+        visible={imageOpen && hasMultipleImages}
+        animationType="fade"
+        transparent
+      >
         <Pressable style={styles.backdrop} onPress={() => setImageOpen(false)}>
           <Pressable style={styles.modalCard} onPress={() => {}}>
             <View style={styles.header}>
-              <Text style={styles.headerTitle}>이미지 슬라이더(사진 여러장 등록시)</Text>
+              <Text style={styles.headerTitle}>
+                이미지 슬라이더(사진 여러장 등록시)
+              </Text>
               <Pressable onPress={() => setImageOpen(false)}>
                 <Text style={styles.closeText}>×</Text>
               </Pressable>

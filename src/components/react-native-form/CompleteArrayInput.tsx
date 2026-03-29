@@ -4,6 +4,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  forwardRef,
 } from 'react';
 import {
   ActivityIndicator,
@@ -33,167 +34,181 @@ export type CompleteArrayInputPropsType = {
   onError?: (err: unknown) => void;
 };
 
-export const CompleteArrayInput: React.FC<CompleteArrayInputPropsType> = ({
-  title,
-  values,
-  setValues,
-  fetchOptions,
-  createOption,
-  hydrateSelected,
-  placeholder = '추가...',
-  debounceMs = 250,
-  onError,
-}) => {
-  const [input, setInput] = useState('');
-  const [options, setOptions] = useState<Option[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [selectedMap, setSelectedMap] = useState<Map<string, Option>>(
-    () => new Map(),
-  );
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+export const CompleteArrayInput = forwardRef<
+  TextInput,
+  CompleteArrayInputPropsType
+>(
+  (
+    {
+      title,
+      values,
+      setValues,
+      fetchOptions,
+      createOption,
+      hydrateSelected,
+      placeholder = '추가...',
+      debounceMs = 250,
+      onError,
+    },
+    ref,
+  ) => {
+    const [input, setInput] = useState('');
+    const [options, setOptions] = useState<Option[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [selectedMap, setSelectedMap] = useState<Map<string, Option>>(
+      () => new Map(),
+    );
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    setLoading(true);
-    debounceRef.current = setTimeout(async () => {
+    useEffect(() => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      setLoading(true);
+      debounceRef.current = setTimeout(async () => {
+        try {
+          const list = await fetchOptions(input.trim());
+          setOptions(list);
+        } catch (err) {
+          onError?.(err);
+        } finally {
+          setLoading(false);
+        }
+      }, debounceMs);
+
+      return () => {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+      };
+    }, [input, fetchOptions, debounceMs, onError]);
+
+    useEffect(() => {
+      let cancelled = false;
+      (async () => {
+        try {
+          if (hydrateSelected) {
+            const hydrated = await hydrateSelected(values);
+            if (cancelled) return;
+            const next = new Map<string, Option>();
+            hydrated.forEach(item => next.set(item.id, item));
+            setSelectedMap(next);
+          }
+        } catch (err) {
+          onError?.(err);
+        }
+      })();
+
+      return () => {
+        cancelled = true;
+      };
+    }, [values, hydrateSelected, onError]);
+
+    const toggleId = useCallback(
+      (id: string) => {
+        setValues(prev =>
+          prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id],
+        );
+      },
+      [setValues],
+    );
+
+    const addId = useCallback(
+      (id: string) => {
+        setValues(prev => (prev.includes(id) ? prev : [...prev, id]));
+      },
+      [setValues],
+    );
+
+    const removeId = useCallback(
+      (id: string) => {
+        setValues(prev => prev.filter(x => x !== id));
+      },
+      [setValues],
+    );
+
+    const handleCreate = useCallback(async () => {
+      if (!createOption) return;
+      const nextName = input.trim();
+      if (!nextName) return;
+
       try {
-        const list = await fetchOptions(input.trim());
-        setOptions(list);
+        setLoading(true);
+        const created = await createOption(nextName);
+        setOptions(prev =>
+          prev.some(o => o.id === created.id) ? prev : [created, ...prev],
+        );
+        addId(created.id);
+        setSelectedMap(prev => new Map(prev).set(created.id, created));
+        setInput('');
       } catch (err) {
         onError?.(err);
       } finally {
         setLoading(false);
       }
-    }, debounceMs);
+    }, [createOption, input, addId, onError]);
 
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [input, fetchOptions, debounceMs, onError]);
+    const selectedItems = useMemo(
+      () =>
+        values.map(id => ({
+          id,
+          label: selectedMap.get(id)?.name ?? id,
+        })),
+      [values, selectedMap],
+    );
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        if (hydrateSelected) {
-          const hydrated = await hydrateSelected(values);
-          if (cancelled) return;
-          const next = new Map<string, Option>();
-          hydrated.forEach(item => next.set(item.id, item));
-          setSelectedMap(next);
-        }
-      } catch (err) {
-        onError?.(err);
-      }
-    })();
+    return (
+      <FieldWrapper>
+        {title ? <FieldLabel title={title} /> : null}
 
-    return () => {
-      cancelled = true;
-    };
-  }, [values, hydrateSelected, onError]);
+        {selectedItems.length > 0 ? (
+          <View style={styles.tags}>
+            {selectedItems.map(item => (
+              <View key={item.id} style={styles.tag}>
+                <Text style={styles.tagText}>{item.label}</Text>
+                <Pressable onPress={() => removeId(item.id)}>
+                  <Text style={styles.removeText}>✕</Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        ) : null}
 
-  const toggleId = useCallback(
-    (id: string) => {
-      setValues(prev =>
-        prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id],
-      );
-    },
-    [setValues],
-  );
-
-  const addId = useCallback(
-    (id: string) => {
-      setValues(prev => (prev.includes(id) ? prev : [...prev, id]));
-    },
-    [setValues],
-  );
-
-  const removeId = useCallback(
-    (id: string) => {
-      setValues(prev => prev.filter(x => x !== id));
-    },
-    [setValues],
-  );
-
-  const handleCreate = useCallback(async () => {
-    if (!createOption) return;
-    const nextName = input.trim();
-    if (!nextName) return;
-
-    try {
-      setLoading(true);
-      const created = await createOption(nextName);
-      setOptions(prev =>
-        prev.some(o => o.id === created.id) ? prev : [created, ...prev],
-      );
-      addId(created.id);
-      setSelectedMap(prev => new Map(prev).set(created.id, created));
-      setInput('');
-    } catch (err) {
-      onError?.(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [createOption, input, addId, onError]);
-
-  const selectedItems = useMemo(
-    () => values.map(id => ({ id, label: selectedMap.get(id)?.name ?? id })),
-    [values, selectedMap],
-  );
-
-  return (
-    <FieldWrapper>
-      {title ? <FieldLabel title={title} /> : null}
-
-      {selectedItems.length > 0 ? (
-        <View style={styles.tags}>
-          {selectedItems.map(item => (
-            <View key={item.id} style={styles.tag}>
-              <Text style={styles.tagText}>{item.label}</Text>
-              <Pressable onPress={() => removeId(item.id)}>
-                <Text style={styles.removeText}>✕</Text>
-              </Pressable>
-            </View>
-          ))}
-        </View>
-      ) : null}
-
-      <TextInput
-        value={input}
-        onChangeText={setInput}
-        placeholder={placeholder}
-        style={styles.input}
-      />
-
-      {createOption && input.trim() ? (
-        <Pressable style={styles.createButton} onPress={handleCreate}>
-          <Text style={styles.createText}>“{input.trim()}” 추가</Text>
-        </Pressable>
-      ) : null}
-
-      <View style={styles.menu}>
-        {loading ? <ActivityIndicator /> : null}
-        <FlatList
-          keyboardShouldPersistTaps="handled"
-          data={options}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => {
-            const selected = values.includes(item.id);
-            return (
-              <Pressable
-                onPress={() => toggleId(item.id)}
-                style={[styles.option, selected && styles.optionSelected]}
-              >
-                <Text style={styles.optionText}>{item.name}</Text>
-                {selected ? <Text style={styles.selectedMark}>✓</Text> : null}
-              </Pressable>
-            );
-          }}
+        <TextInput
+          ref={ref}
+          value={input}
+          focusable={true}
+          onChangeText={setInput}
+          placeholder={placeholder}
+          style={styles.input}
         />
-      </View>
-    </FieldWrapper>
-  );
-};
+
+        {createOption && input.trim() ? (
+          <Pressable style={styles.createButton} onPress={handleCreate}>
+            <Text style={styles.createText}>“{input.trim()}” 추가</Text>
+          </Pressable>
+        ) : null}
+
+        <View style={styles.menu}>
+          {loading ? <ActivityIndicator /> : null}
+          <FlatList
+            keyboardShouldPersistTaps="handled"
+            data={options}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => {
+              const selected = values.includes(item.id);
+              return (
+                <Pressable
+                  onPress={() => toggleId(item.id)}
+                  style={[styles.option, selected && styles.optionSelected]}
+                >
+                  <Text style={styles.optionText}>{item.name}</Text>
+                  {selected ? <Text style={styles.selectedMark}>✓</Text> : null}
+                </Pressable>
+              );
+            }}
+          />
+        </View>
+      </FieldWrapper>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
+  TextInput as RNTextInput,
   ScrollView,
   StyleSheet,
   Pressable,
@@ -28,11 +29,18 @@ import TextInput from '../../components/react-native-form/TextInput';
 import DateInput from '../../components/react-native-form/DateInput';
 import SelectInput, {
   Option,
+  SelectInputRef,
 } from '../../components/react-native-form/SelectInput';
-import PellRichEditorInput from '../../components/react-native-form/PellRichEditorInput';
-import EmotionSelectInput from '../../components/react-native-form/EmotionSelectInput';
+import PellRichEditorInput, {
+  PellRichEditorInputRef,
+} from '../../components/react-native-form/PellRichEditorInput';
+import EmotionSelectInput, {
+  EmotionSelectInputRef,
+} from '../../components/react-native-form/EmotionSelectInput';
 import CheckboxInput from '../../components/react-native-form/CheckboxInput';
-import ImageInput from '../../components/react-native-form/ImageInput';
+import ImageInput, {
+  ImageInputRef,
+} from '../../components/react-native-form/ImageInput';
 import ConfirmButton from '../../components/react-native-form/ConfirmButton';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
@@ -66,6 +74,15 @@ const DiaryEditPage = ({
   const { isLogin, diary, setDiary, setOpen } = useLogin();
   const [isMouseOverOnce, setIsMouseOverOnce] = useState(false);
   const [nicknameList, setNicknameList] = useState<string[]>([]);
+
+  const titleRef = useRef<RNTextInput | null>(null);
+  const dateRef = useRef<RNTextInput | null>(null);
+  const weatherRef = useRef<RNTextInput | null>(null);
+  const visibilityRef = useRef<SelectInputRef | null>(null);
+  const contentRef = useRef<PellRichEditorInputRef | null>(null);
+  const emotionSelectRef = useRef<EmotionSelectInputRef | null>(null);
+  const checkboxRef = useRef<View | null>(null);
+  const imageInputRef = useRef<ImageInputRef | null>(null);
 
   const visibilityOptions: Option[] = [
     { label: 'PUBLIC', value: 'PUBLIC' },
@@ -218,10 +235,13 @@ const DiaryEditPage = ({
               setData={v => setId(Number(v))}
             />
             <TextInput
+              ref={titleRef}
               name="title"
               title="제목"
               data={title}
               setData={setTitle}
+              returnKeyType="next"
+              onSubmitEditing={() => dateRef.current?.focus()}
             />
           </TwoDiv>
 
@@ -233,29 +253,43 @@ const DiaryEditPage = ({
               data={nickname}
               setData={() => {}}
             />
-            <DateInput title="날짜" selected={date} setSelected={setDate} />
+            <DateInput
+              ref={dateRef}
+              title="날짜"
+              selected={date}
+              setSelected={setDate}
+              returnKeyType="next"
+              onSubmitEditing={() => weatherRef.current?.focus()}
+            />
           </TwoDiv>
 
           <TwoDiv>
             <TextInput
+              ref={weatherRef}
               name="weather"
               title="날씨"
               data={weather}
               setData={setWeather}
+              returnKeyType="next"
+              onSubmitEditing={() => visibilityRef.current?.focus()}
             />
             <SelectInput
+              ref={visibilityRef}
               name="visibility"
               title="공개여부"
               value={visibility}
               setValue={setVisibility}
               options={visibilityOptions}
+              onPressNext={() => contentRef.current?.focus()}
             />
           </TwoDiv>
 
           <PellRichEditorInput
+            ref={contentRef}
             title="내용"
             data={content}
             setData={setContent}
+            onPressNext={() => emotionSelectRef.current?.focus()}
           />
 
           <View style={styles.actionRow}>
@@ -299,6 +333,7 @@ const DiaryEditPage = ({
           </View>
 
           <EmotionSelectInput
+            ref={emotionSelectRef}
             name="emotion"
             title="이모션"
             data={emoji ?? ''}
@@ -306,6 +341,7 @@ const DiaryEditPage = ({
           />
 
           <CheckboxInput
+            ref={checkboxRef}
             name="isimageshown"
             title="이미지입력창"
             checked={isImagesShown}
@@ -314,6 +350,7 @@ const DiaryEditPage = ({
 
           {isImagesShown && (
             <ImageInput
+              ref={imageInputRef}
               name="images"
               title="이미지들"
               data={images ?? []}

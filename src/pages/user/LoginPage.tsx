@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput as RNTextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -26,6 +27,10 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const emailRef = useRef<RNTextInput | null>(null);
+  const passwordRef = useRef<RNTextInput | null>(null);
+  const confirmButtonRef = useRef<View | null>(null);
+
   const onLoginSubmit = async () => {
     try {
       const res = await UserLoginApi(email, password);
@@ -38,6 +43,7 @@ const LoginPage = () => {
       ]);
 
       setIsLogin(true);
+      if (navigation.canGoBack()) navigation.goBack();
     } catch (e) {
       console.log('login error =', e);
     }
@@ -70,24 +76,30 @@ const LoginPage = () => {
 
           <View style={styles.inputBox}>
             <TextInput
+              ref={emailRef}
               name="email"
               title="이메일 주소"
               data={email}
               setData={setEmail}
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
             />
           </View>
 
           <View style={styles.inputBox}>
             <PasswordInput
+              ref={passwordRef}
               name="password"
               title="비밀 번호"
               data={password}
               setData={setPassword}
+              returnKeyType="next"
+              onSubmitEditing={() => confirmButtonRef.current?.focus()}
             />
           </View>
 
           <View style={styles.buttonBox}>
-            <ConfirmButton title="로그인" onPress={onLoginSubmit} />
+            <ConfirmButton ref={confirmButtonRef} title="로그인" onPress={onLoginSubmit} />
           </View>
         </ScrollView>
       </Layout>

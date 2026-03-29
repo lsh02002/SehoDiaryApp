@@ -1,4 +1,10 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+  forwardRef,
+} from 'react';
 import {
   Modal,
   Platform,
@@ -6,17 +12,21 @@ import {
   StyleSheet,
   Text,
   View,
+  TextInput as RNTextInput,
+  TextInput,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { colors } from '../../themes/theme';
 import { FieldLabel, FieldWrapper, BaseInput, fieldStyles } from './field';
 
-interface DateInputProps {
+type Props = {
   disabled?: boolean;
   title: string;
   selected: Date | undefined;
   setSelected: Dispatch<SetStateAction<Date | undefined>>;
-}
+  returnKeyType?: React.ComponentProps<typeof TextInput>['returnKeyType'];
+  onSubmitEditing?: React.ComponentProps<typeof TextInput>['onSubmitEditing'];
+};
 
 const formatDate = (date?: Date) => {
   if (!date) return '';
@@ -29,89 +39,108 @@ const parseDate = (value: string): Date | undefined => {
   return Number.isNaN(parsed.getTime()) ? undefined : parsed;
 };
 
-const DateInput = ({
-  disabled,
-  title,
-  selected,
-  setSelected,
-}: DateInputProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [inputValue, setInputValue] = useState(formatDate(selected));
+const DateInput = forwardRef<RNTextInput, Props>(
+  (
+    {
+      disabled,
+      title,
+      selected,
+      setSelected,
+      returnKeyType,
+      onSubmitEditing,      
+    },
+    ref,
+  ) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [inputValue, setInputValue] = useState(formatDate(selected));
 
-  useEffect(() => {
-    setInputValue(formatDate(selected));
-  }, [selected]);
+    useEffect(() => {
+      setInputValue(formatDate(selected));
+    }, [selected]);
 
-  return (
-    <FieldWrapper>
-      <FieldLabel title={title} />
-      <View style={styles.row}>
-        <BaseInput
-          editable={!disabled}
-          value={inputValue}
-          placeholder="yyyy-MM-dd"
-          onChangeText={value => {
-            setInputValue(value);
-            const parsed = parseDate(value);
-            if (parsed) setSelected(parsed);
-          }}
-          style={[
-            fieldStyles.input,
-            styles.input,
-            disabled && fieldStyles.disabled,
-          ]}
-        />
+    return (
+      <FieldWrapper>
+        <FieldLabel title={title} />
 
-        <Pressable
-          disabled={disabled}
-          onPress={() => setIsOpen(true)}
-          style={[styles.button, disabled && fieldStyles.disabled]}
-        >
-          <Text style={styles.buttonText}>📅</Text>
-        </Pressable>
-      </View>
+        <View style={styles.row}>
+          <BaseInput
+            ref={ref}
+            editable={!disabled}
+            value={inputValue}
+            focusable={true}
+            placeholder="yyyy-MM-dd"
+            returnKeyType={returnKeyType}
+            onSubmitEditing={onSubmitEditing}
+            onChangeText={value => {
+              setInputValue(value);
+              const parsed = parseDate(value);
+              if (parsed) setSelected(parsed);
+            }}
+            style={[
+              fieldStyles.input,
+              styles.input,
+              disabled && fieldStyles.disabled,
+            ]}
+          />
 
-      {isOpen ? (
-        <Modal
-          transparent
-          animationType="fade"
-          visible={isOpen}
-          onRequestClose={() => setIsOpen(false)}
-        >
-          <Pressable style={styles.overlay} onPress={() => setIsOpen(false)}>
-            <Pressable style={styles.modal} onPress={() => undefined}>
-              <DateTimePicker
-                value={selected ?? new Date()}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                onChange={(_, value) => {
-                  if (Platform.OS !== 'ios') setIsOpen(false);
-
-                  if (!value) return;
-
-                  setSelected(value);
-                  setInputValue(formatDate(value));
-                }}
-              />
-              {Platform.OS === 'ios' ? (
-                <Pressable
-                  style={styles.confirm}
-                  onPress={() => setIsOpen(false)}
-                >
-                  <Text style={styles.confirmText}>확인</Text>
-                </Pressable>
-              ) : null}
-            </Pressable>
+          <Pressable
+            disabled={disabled}
+            onPress={() => setIsOpen(true)}
+            style={[styles.button, disabled && fieldStyles.disabled]}
+          >
+            <Text style={styles.buttonText}>📅</Text>
           </Pressable>
-        </Modal>
-      ) : null}
-    </FieldWrapper>
-  );
-};
+        </View>
+
+        {isOpen && (
+          <Modal
+            transparent
+            animationType="fade"
+            visible={isOpen}
+            onRequestClose={() => setIsOpen(false)}
+          >
+            <Pressable style={styles.overlay} onPress={() => setIsOpen(false)}>
+              <Pressable style={styles.modal} onPress={() => undefined}>
+                <DateTimePicker
+                  value={selected ?? new Date()}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                  onChange={(_, value) => {
+                    if (Platform.OS !== 'ios') setIsOpen(false);
+
+                    if (!value) return;
+
+                    setSelected(value);
+                    setInputValue(formatDate(value));
+                  }}
+                />
+
+                {Platform.OS === 'ios' && (
+                  <Pressable
+                    style={styles.confirm}
+                    onPress={() => setIsOpen(false)}
+                  >
+                    <Text style={styles.confirmText}>확인</Text>
+                  </Pressable>
+                )}
+              </Pressable>
+            </Pressable>
+          </Modal>
+        )}
+      </FieldWrapper>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  input: { flex: 1 },
+  row: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  input: {
+    flex: 1,
+  },
   button: {
     width: 44,
     height: 44,
@@ -122,7 +151,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.background,
   },
-  buttonText: { fontSize: 18 },
+  buttonText: {
+    fontSize: 18,
+  },
   overlay: {
     flex: 1,
     backgroundColor: colors.overlay,
@@ -142,7 +173,10 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 12,
   },
-  confirmText: { color: 'white', fontWeight: '700' },
+  confirmText: {
+    color: 'white',
+    fontWeight: '700',
+  },
 });
 
 export default DateInput;

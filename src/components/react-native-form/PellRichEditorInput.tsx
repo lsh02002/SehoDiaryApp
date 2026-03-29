@@ -1,6 +1,8 @@
 import React, {
+  forwardRef,
   useCallback,
   useEffect,
+  useImperativeHandle,
   useMemo,
   useRef,
   useState,
@@ -20,116 +22,137 @@ type Props = {
   data: string;
   setData: (v: string) => void;
   rows?: number;
+  onPressNext?: () => void;
 };
 
-const PellRichEditorInput = ({
-  disabled = false,
-  title,
-  data,
-  setData,
-  rows = 8,
-}: Props) => {
-  const editorRef = useRef<RichEditor>(null);
-  const htmlRef = useRef(data || '');
-  const initializedRef = useRef(false);
-  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+export type PellRichEditorInputRef = {
+  focus: () => void;
+  blur: () => void;
+  setHtml: (html: string) => void;
+  getHtml: () => string;
+};
 
-  const [initialHtml, setInitialHtml] = useState(data || '');
+const PellRichEditorInput = forwardRef<PellRichEditorInputRef, Props>(
+  ({ disabled = false, title, data, setData, rows = 8, onPressNext }, ref) => {
+    const editorRef = useRef<RichEditor>(null);
+    const htmlRef = useRef(data || '');
+    const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const editorHeight = useMemo(() => Math.max(rows, 8) * 28, [rows]);
+    const [initialHtml, setInitialHtml] = useState(data || '');
 
-  useEffect(() => {    
-    htmlRef.current = data || '';
-    setInitialHtml(data);
-  }, [data]);
+    const editorHeight = useMemo(() => Math.max(rows, 8) * 28, [rows]);
 
-  useEffect(() => {
-    return () => {
-      if (syncTimerRef.current) {
-        clearTimeout(syncTimerRef.current);
-      }
-    };
-  }, []);
+    useEffect(() => {
+      htmlRef.current = data || '';
+      setInitialHtml(data || '');
+    }, [data]);
 
-  const flushToParent = useCallback(
-    (html: string) => {
-      if (syncTimerRef.current) {
-        clearTimeout(syncTimerRef.current);
-      }
+    useEffect(() => {
+      return () => {
+        if (syncTimerRef.current) {
+          clearTimeout(syncTimerRef.current);
+        }
+      };
+    }, []);
 
-      syncTimerRef.current = setTimeout(() => {
+    const flushToParent = useCallback(
+      (html: string) => {
+        if (syncTimerRef.current) {
+          clearTimeout(syncTimerRef.current);
+        }
+
+        syncTimerRef.current = setTimeout(() => {
+          setData(html);
+        }, 250);
+      },
+      [setData],
+    );
+
+    const handleChange = useCallback(
+      (html: string) => {
+        const nextHtml = html ?? '';
+        htmlRef.current = nextHtml;
+        flushToParent(nextHtml);
+      },
+      [flushToParent],
+    );
+
+    useImperativeHandle(ref, () => ({
+      focus: () => {
+        if (!disabled) {
+          editorRef.current?.focusContentEditor();
+        }
+      },
+      blur: () => {
+        editorRef.current?.blurContentEditor();
+      },
+      setHtml: (html: string) => {
+        htmlRef.current = html;
+        editorRef.current?.setContentHTML(html);
         setData(html);
-      }, 250);
-    },
-    [setData],
-  );
+      },
+      getHtml: () => htmlRef.current,
+    }));
 
-  const handleChange = useCallback(
-    (html: string) => {
-      const nextHtml = html ?? '';
-      htmlRef.current = nextHtml;
-      flushToParent(nextHtml);
-    },
-    [flushToParent],
-  );
+    return (
+      <FieldWrapper>
+        <FieldLabel title={title} />
 
-  const handleInitialized = useCallback(() => {
-    initializedRef.current = true;
-  }, []);
+        <View style={[styles.container, disabled && styles.disabled]}>
+          {!disabled && (
+            <RichToolbar
+              getEditor={() => editorRef.current}
+              actions={[
+                actions.setBold,
+                actions.setItalic,
+                actions.setUnderline,
+                actions.heading1,
+                actions.heading2,
+                actions.insertBulletsList,
+                actions.insertOrderedList,
+                actions.blockquote,
+                actions.undo,
+                actions.redo,
+              ]}
+              style={styles.toolbar}
+              iconTint={colors.text}
+              selectedIconTint={colors.primary}
+              selectedButtonStyle={styles.selectedButton}
+            />
+          )}
 
-  return (
-    <FieldWrapper>
-      <FieldLabel title={title} />
-
-      <View style={[styles.container, disabled && styles.disabled]}>
-        {!disabled && (
-          <RichToolbar
-            getEditor={() => editorRef.current}
-            actions={[
-              actions.setBold,
-              actions.setItalic,
-              actions.setUnderline,
-              actions.heading1,
-              actions.heading2,
-              actions.insertBulletsList,
-              actions.insertOrderedList,
-              actions.blockquote,
-              actions.undo,
-              actions.redo,
-            ]}
-            style={styles.toolbar}
-            iconTint={colors.text}
-            selectedIconTint={colors.primary}
-            selectedButtonStyle={styles.selectedButton}
+          <RichEditor
+            ref={editorRef}
+            disabled={disabled}
+            initialContentHTML={initialHtml}
+            placeholder="내용을 입력하세요."
+            style={[styles.editor, { minHeight: editorHeight }]}
+            editorStyle={{
+              backgroundColor: colors.background,
+              color: colors.text,
+              placeholderColor: colors.muted,
+              contentCSSText: `
+                font-size: 16px;
+                line-height: 1.6;
+                padding: 12px;
+                min-height: ${editorHeight}px;
+              `,
+            }}
+            onChange={handleChange}
+            enterKeyHint="next"
+            onKeyUp={(e: any) => {
+              if (e?.key === 'Enter') {
+                onPressNext?.();
+              }
+            }}
           />
-        )}
+        </View>
 
-        <RichEditor
-          ref={editorRef}
-          disabled={disabled}
-          initialContentHTML={initialHtml}
-          placeholder="내용을 입력하세요."
-          editorInitializedCallback={handleInitialized}
-          style={[styles.editor, { minHeight: editorHeight }]}
-          editorStyle={{
-            backgroundColor: colors.background,
-            color: colors.text,
-            placeholderColor: colors.muted,
-            contentCSSText: `
-              font-size: 16px;
-              line-height: 1.6;
-              padding: 12px;
-              min-height: ${editorHeight}px;
-            `,
-          }}
-          onChange={handleChange}
-        />
-      </View>
-
-      <Text style={styles.helper}>선택 유지 우선 구조입니다.</Text>
-    </FieldWrapper>
-  );
-};
+        <Text style={styles.helper}>선택 유지 우선 구조입니다.</Text>
+      </FieldWrapper>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   container: {
