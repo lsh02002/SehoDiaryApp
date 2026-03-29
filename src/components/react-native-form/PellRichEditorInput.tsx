@@ -79,9 +79,15 @@ const PellRichEditorInput = forwardRef<PellRichEditorInputRef, Props>(
 
     useImperativeHandle(ref, () => ({
       focus: () => {
-        if (!disabled) {
+        if (disabled) return;
+
+        // 1차 포커스
+        editorRef.current?.focusContentEditor();
+
+        // 🔥 핵심: 키보드 확실히 띄우기
+        setTimeout(() => {
           editorRef.current?.focusContentEditor();
-        }
+        }, 100);
       },
       blur: () => {
         editorRef.current?.blurContentEditor();
