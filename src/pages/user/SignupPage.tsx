@@ -141,7 +141,7 @@ const SignupPage = () => {
               name="istext"
               title="암호보기"
               checked={isPasswordVisible}
-              setChecked={setIsPasswordVisible}              
+              setChecked={setIsPasswordVisible}
               opPressNext={() => confirmButtonRef.current?.focus()}
             />
           </View>

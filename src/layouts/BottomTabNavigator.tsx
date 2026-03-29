@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLogin } from '../context/LoginContext';
 import MyPage from '../pages/mypage/MyPage';
-import DiaryListPage from '../pages/diary/DiaryListPage';
+import RootNavigator from './RootNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -36,7 +36,7 @@ const BottomTabNavigator = () => {
     >
       <Tab.Screen
         name="Home"
-        component={DiaryListPage}
+        component={RootNavigator}
         options={{
           tabBarLabel: '홈',
           // eslint-disable-next-line react/no-unstable-nested-components

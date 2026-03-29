@@ -97,7 +97,11 @@ const LoginPage = () => {
           </View>
 
           <View style={styles.buttonBox}>
-            <ConfirmButton ref={confirmButtonRef} title="로그인" onPress={onLoginSubmit} />
+            <ConfirmButton
+              ref={confirmButtonRef}
+              title="로그인"
+              onPress={onLoginSubmit}
+            />
           </View>
         </ScrollView>
       </Layout>

@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Modal,
   Pressable,
   ScrollView,
   Button,
@@ -19,6 +18,7 @@ import { useLogin } from '../context/LoginContext';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import { UserLogoutApi } from '../api/sehodiary-api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 interface Props {
   appName?: string;
@@ -28,6 +28,8 @@ interface Props {
 export default function Layout({ appName = '앱', children }: Props) {
   const { open, setOpen, isLogin, setIsLogin } = useLogin();
   const navigation = useNavigation<any>();
+
+  const tabBarHeight = useBottomTabBarHeight();
 
   const onLogoutSubmit = async () => {
     Alert.alert(
@@ -74,33 +76,36 @@ export default function Layout({ appName = '앱', children }: Props) {
           <Menu size={20} color="#111" />
         </TouchableOpacity>
 
-        <Modal
-          visible={open}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setOpen(false)}
-        >
-          <Pressable style={styles.overlay} onPress={() => setOpen(false)} />
+        {open && (
+          <View
+            pointerEvents="box-none"
+            style={[StyleSheet.absoluteFillObject, styles.overlayLayer]}
+          >
+            <Pressable
+              style={[styles.overlay, { bottom: tabBarHeight }]}
+              onPress={() => setOpen(false)}
+            />
 
-          <View style={styles.sidebar}>
-            <View style={styles.sidebarHeader}>
-              <Text style={styles.sidebarTitle}>댓글 창</Text>
+            <View style={[styles.sidebar]}>
+              <View style={styles.sidebarHeader}>
+                <Text style={styles.sidebarTitle}>댓글 창</Text>
 
-              <TouchableOpacity
-                onPress={() => setOpen(false)}
-                accessibilityLabel="메뉴 닫기"
-              >
-                <Text style={styles.closeButton}>×</Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity
+                  onPress={() => setOpen(false)}
+                  accessibilityLabel="메뉴 닫기"
+                >
+                  <Text style={styles.closeButton}>×</Text>
+                </TouchableOpacity>
+              </View>
 
-            <View style={styles.sidebarContent}>
-              <RootSiblingParent>
-                <CommentPage />
-              </RootSiblingParent>
+              <View style={styles.sidebarContent}>
+                <RootSiblingParent>
+                  <CommentPage />
+                </RootSiblingParent>
+              </View>
             </View>
           </View>
-        </Modal>
+        )}
 
         <View style={styles.header}>
           <View style={styles.headerInner}>
@@ -146,6 +151,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     alignItems: 'center',
     backgroundColor: '#fff',
+    flex: 1,
   },
   container: {
     width: '100%',
@@ -170,9 +176,19 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 4,
   },
+  overlayLayer: {
+    zIndex: 999,
+    elevation: 999,
+  },
   overlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.32)',
+    width: '100%',
+    height: '100%',
   },
   sidebar: {
     position: 'absolute',

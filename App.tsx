@@ -1,11 +1,11 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { LoginProvider, useLogin } from './src/context/LoginContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import RootNavigator from './src/layouts/RootNavigator';
 import { ScrollProvider } from './src/context/ScrollContext';
 import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootSiblingParent } from 'react-native-root-siblings';
+import BottomTabNavigator from './src/layouts/BottomTabNavigator';
 
 function AppContent() {
   const { setIsLogin } = useLogin();
@@ -28,7 +28,7 @@ function AppContent() {
     init();
   }, [setIsLogin]);
 
-  return <RootNavigator />;
+  return <BottomTabNavigator />;
 }
 
 function App() {
