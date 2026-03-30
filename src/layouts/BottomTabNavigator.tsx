@@ -3,10 +3,11 @@ import { Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLogin } from '../context/LoginContext';
-import MyPage from '../pages/mypage/MyPage';
-import RootNavigator from './RootNavigator';
+import HomeNavigator from './HomeNavigator';
+import MypageNatigator from './MypageNatigator';
+import { BottomTabParamList } from '../types/type';
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 const iconStyle = {
   width: 24,
@@ -36,7 +37,7 @@ const BottomTabNavigator = () => {
     >
       <Tab.Screen
         name="Home"
-        component={RootNavigator}
+        component={HomeNavigator}
         listeners={{
           tabPress: () => {
             if (open) {
@@ -62,7 +63,7 @@ const BottomTabNavigator = () => {
       {isLogin && (
         <Tab.Screen
           name="MyPage"
-          component={MyPage}
+          component={MypageNatigator}
           listeners={{
             tabPress: () => {
               if (open) {
@@ -72,7 +73,7 @@ const BottomTabNavigator = () => {
               }
             },
           }}
-          initialParams={{ tab: 'info' }}
+          initialParams={{ screen: 'Mypage', params: { tab: 'info' } }}
           options={{
             tabBarLabel: '마이페이지',
             // eslint-disable-next-line react/no-unstable-nested-components

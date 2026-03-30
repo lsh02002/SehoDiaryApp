@@ -14,7 +14,10 @@ import { useWindowDimensions } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { DiaryResponseType, RootStackParamList } from '../../types/type';
+import {
+  BottomTabParamList,
+  DiaryResponseType,
+} from '../../types/type';
 import { useLogin } from '../../context/LoginContext';
 import {
   deleteLikeApi,
@@ -23,15 +26,12 @@ import {
   isLikedApi,
 } from '../../api/sehodiary-api';
 import ImageCard from './ImageCard';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
-type DiaryListNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  'DiaryList'
->;
+type MyDiariesNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
-const DiaryCard0 = ({ diary0 }: { diary0: DiaryResponseType }) => {
-  const navigation = useNavigation<DiaryListNavigationProp>();
+const DiaryCard0 = ({ diary0 }: { diary0: DiaryResponseType }) => {  
+  const mypagenavigaton = useNavigation<MyDiariesNavigationProp>();
   const { width } = useWindowDimensions();
   const { isLogin, setOpen, setDiary } = useLogin();
   const [isLiked, setIsLiked] = useState(false);
@@ -92,7 +92,12 @@ const DiaryCard0 = ({ diary0 }: { diary0: DiaryResponseType }) => {
   };
 
   const moveToDetail = () => {
-    navigation.navigate('DiaryEdit', { diaryId: diary0?.id });
+    mypagenavigaton.navigate('Home', {
+      screen: 'DiaryEdit',
+      params: {
+        diaryId: diary0?.id,
+      },
+    });
   };
 
   return (
@@ -260,7 +265,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   modalCard: {
-    width: '100%',    
+    width: '100%',
     maxHeight: 400,
     backgroundColor: '#fff',
     borderRadius: 16,

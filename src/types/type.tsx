@@ -1,3 +1,5 @@
+import { NavigatorScreenParams } from '@react-navigation/native';
+
 export type UserSignupType = {
   email: string;
   nickname: string;
@@ -74,17 +76,24 @@ export type EmotionResponseType = {
 
 export type RNFileType = {
   uri: string;
-  name?: string;  
+  name?: string;
   type?: string;
   size?: number;
 };
 
-export type RootStackParamList = {
-  MainTabs: undefined;
+export type HomeStackParamList = {
   Login: undefined;
   Signup: undefined;
   DiaryCreate: undefined;
   DiaryList: undefined;
   DiaryEdit: { diaryId: number };
-  Mypage: undefined;
+};
+
+export type MypageStackParamList = {
+  Mypage: { tab?: string } | undefined;
+};
+
+export type BottomTabParamList = {
+  Home: NavigatorScreenParams<HomeStackParamList>;
+  MyPage: NavigatorScreenParams<MypageStackParamList>;
 };
