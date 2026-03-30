@@ -6,13 +6,15 @@ import {
   SetStateAction,
   useContext,
   useMemo,
-} from "react";
-import { CommentResponseType, DiaryResponseType } from "../types/type";
+} from 'react';
+import { CommentResponseType, DiaryResponseType } from '../types/type';
 
 type LoginContextValue = {
   isLogin: boolean;
   setIsLogin: Dispatch<SetStateAction<boolean>>;
   open: boolean;
+  mypageTab: string;
+  setMypageTab: Dispatch<SetStateAction<string>>;
   setOpen: Dispatch<SetStateAction<boolean>>;
   diary?: DiaryResponseType;
   setDiary: Dispatch<SetStateAction<DiaryResponseType | undefined>>;
@@ -29,9 +31,14 @@ export const LoginContext = createContext<LoginContextValue | undefined>(
 export const LoginProvider = ({ children }: { children: ReactNode }) => {
   const [isLogin, setIsLogin] = useState(false);
   const [open, setOpen] = useState(false);
+  const [mypageTab, setMypageTab] = useState('info');
   const [diary, setDiary] = useState<DiaryResponseType>();
-  const [commentList, setCommentList] = useState<CommentResponseType[] | undefined>(undefined);
-  const [myCommentList, setMyCommentList] = useState<CommentResponseType[] | undefined>(undefined);
+  const [commentList, setCommentList] = useState<
+    CommentResponseType[] | undefined
+  >(undefined);
+  const [myCommentList, setMyCommentList] = useState<
+    CommentResponseType[] | undefined
+  >(undefined);
 
   const value = useMemo<LoginContextValue>(
     () => ({
@@ -39,6 +46,8 @@ export const LoginProvider = ({ children }: { children: ReactNode }) => {
       setIsLogin,
       open,
       setOpen,
+      mypageTab,
+      setMypageTab,
       diary,
       setDiary,
       commentList,
@@ -46,7 +55,7 @@ export const LoginProvider = ({ children }: { children: ReactNode }) => {
       myCommentList,
       setMyCommentList,
     }),
-    [commentList, diary, isLogin, myCommentList, open],
+    [commentList, diary, isLogin, myCommentList, mypageTab, open],
   );
 
   return (
@@ -57,6 +66,6 @@ export const LoginProvider = ({ children }: { children: ReactNode }) => {
 export function useLogin() {
   const ctx = useContext(LoginContext);
 
-  if (!ctx) throw new Error("useLogin must be used within <LoginProvider>");
+  if (!ctx) throw new Error('useLogin must be used within <LoginProvider>');
   return ctx;
 }

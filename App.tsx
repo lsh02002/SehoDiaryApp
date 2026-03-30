@@ -1,7 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { LoginProvider, useLogin } from './src/context/LoginContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ScrollProvider } from './src/context/ScrollContext';
 import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootSiblingParent } from 'react-native-root-siblings';
@@ -36,11 +35,9 @@ function App() {
     <RootSiblingParent>
       <SafeAreaProvider>
         <NavigationContainer>
-          <ScrollProvider>
-            <LoginProvider>
-              <AppContent />
-            </LoginProvider>
-          </ScrollProvider>
+          <LoginProvider>
+            <AppContent />
+          </LoginProvider>
         </NavigationContainer>
       </SafeAreaProvider>
     </RootSiblingParent>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ScrollView,
   Button,
   Alert,
+  Animated,
 } from 'react-native';
 import { Menu } from 'lucide-react-native';
 import { BackwardButton } from '../components/react-native-form/BackwardButton';
@@ -19,14 +20,147 @@ import { RootSiblingParent } from 'react-native-root-siblings';
 import { UserLogoutApi } from '../api/sehodiary-api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { Animated } from 'react-native';
+import { layouts } from '../themes/theme';
 
 interface Props {
   appName?: string;
   children: React.ReactNode;
 }
 
-export default function Layout({ appName = '앱', children }: Props) {
+interface SidebarContentProps {
+  contentReady: boolean;
+}
+
+const SidebarContent = memo(function SidebarContent({
+  contentReady,
+}: SidebarContentProps) {
+  if (!contentReady) return null;
+
+  return (
+    <RootSiblingParent>
+      <CommentPage />
+    </RootSiblingParent>
+  );
+});
+
+interface SidebarProps {
+  visible: boolean;
+  tabBarHeight: number;
+  translateY: Animated.Value;
+  contentReady: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Sidebar = memo(function Sidebar({
+  visible,
+  tabBarHeight,
+  translateY,
+  contentReady,
+  setOpen,
+}: SidebarProps) {
+  const handleClose = useCallback(() => {
+    setOpen(false);
+  }, [setOpen]);
+
+  if (!visible) return null;
+
+  return (
+    <View
+      pointerEvents="box-none"
+      style={[StyleSheet.absoluteFillObject, styles.overlayLayer]}
+    >
+      <Pressable
+        style={[styles.overlay, { bottom: tabBarHeight }]}
+        onPress={handleClose}
+      />
+
+      <Animated.View
+        style={[
+          styles.sidebar,
+          {
+            transform: [
+              { translateX: -210 }, // 기존 -50% 대체
+              { translateY },
+            ],
+          },
+        ]}
+      >
+        <View style={styles.sidebarHeader}>
+          <Text style={styles.sidebarTitle}>댓글 창</Text>
+
+          <TouchableOpacity
+            onPress={handleClose}
+            accessibilityLabel="메뉴 닫기"
+          >
+            <Text style={styles.closeButton}>×</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.sidebarContent}>
+          <SidebarContent contentReady={contentReady} />
+        </View>
+      </Animated.View>
+    </View>
+  );
+});
+
+interface HeaderProps {
+  appName: string;
+  isLogin: boolean;
+  onLogoutSubmit: () => Promise<void>;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  navigation: any;
+}
+
+const Header = memo(function Header({
+  appName,
+  isLogin,
+  onLogoutSubmit,
+  setOpen,
+  navigation,
+}: HeaderProps) {
+  const handleOpen = useCallback(() => {
+    setOpen(true);
+  }, [setOpen]);
+
+  const handleLogin = useCallback(() => {
+    navigation.navigate('Login');
+  }, [navigation]);
+
+  const handleSignup = useCallback(() => {
+    navigation.navigate('Signup');
+  }, [navigation]);
+
+  return (
+    <View style={styles.header}>
+      <View style={styles.headerInner}>
+        <TouchableOpacity
+          style={styles.burgerButton}
+          accessibilityLabel="메뉴 열기"
+          accessibilityRole="button"
+          onPress={handleOpen}
+        >
+          <Menu size={20} color="#111" />
+        </TouchableOpacity>
+
+        <Text style={styles.appName}>{appName}</Text>
+
+        <View style={styles.auth}>
+          {isLogin ? (
+            <Button title="로그아웃" onPress={onLogoutSubmit} />
+          ) : (
+            <>
+              <Button title="로그인" onPress={handleLogin} />
+              <Button title="회원가입" onPress={handleSignup} />
+            </>
+          )}
+        </View>
+      </View>
+    </View>
+  );
+});
+
+function Layout({ appName = '앱', children }: Props) {
   const { open, setOpen, isLogin, setIsLogin } = useLogin();
   const [visible, setVisible] = React.useState(false);
   const [contentReady, setContentReady] = React.useState(false);
@@ -60,7 +194,7 @@ export default function Layout({ appName = '앱', children }: Props) {
     }
   }, [open, visible, translateY]);
 
-  const onLogoutSubmit = async () => {
+  const onLogoutSubmit = useCallback(async () => {
     Alert.alert(
       '로그아웃',
       '로그아웃 하시겠습니까?',
@@ -91,83 +225,30 @@ export default function Layout({ appName = '앱', children }: Props) {
       ],
       { cancelable: true },
     );
-  };
+  }, [setIsLogin]);
+
+  const handleCreateDiary = useCallback(() => {
+    navigation.navigate('DiaryCreate');
+  }, [navigation]);
 
   return (
     <View style={styles.safeArea}>
       <View style={styles.container}>
-        {visible && (
-          <View
-            pointerEvents="box-none"
-            style={[StyleSheet.absoluteFillObject, styles.overlayLayer]}
-          >
-            <Pressable
-              style={[styles.overlay, { bottom: tabBarHeight }]}
-              onPress={() => setOpen(false)}
-            />
+        <Sidebar
+          visible={visible}
+          tabBarHeight={tabBarHeight}
+          translateY={translateY}
+          contentReady={contentReady}
+          setOpen={setOpen}
+        />
 
-            <Animated.View
-              style={[
-                styles.sidebar,
-                {
-                  transform: [
-                    { translateX: -210 }, // 기존 -50% 대체
-                    { translateY },
-                  ],
-                },
-              ]}
-            >
-              <View style={styles.sidebarHeader}>
-                <Text style={styles.sidebarTitle}>댓글 창</Text>
-
-                <TouchableOpacity
-                  onPress={() => setOpen(false)}
-                  accessibilityLabel="메뉴 닫기"
-                >
-                  <Text style={styles.closeButton}>×</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.sidebarContent}>
-                {contentReady ? (
-                  <RootSiblingParent>
-                    <CommentPage />
-                  </RootSiblingParent>
-                ) : null}
-              </View>
-            </Animated.View>
-          </View>
-        )}
-
-        <View style={styles.header}>
-          <View style={styles.headerInner}>
-            <TouchableOpacity
-              style={styles.burgerButton}
-              accessibilityLabel="메뉴 열기"
-              accessibilityRole="button"
-              onPress={() => setOpen(true)}
-            >
-              <Menu size={20} color="#111" />
-            </TouchableOpacity>
-            <Text style={styles.appName}>{appName}</Text>
-            <View style={styles.auth}>
-              {isLogin ? (
-                <Button title="로그아웃" onPress={onLogoutSubmit} />
-              ) : (
-                <>
-                  <Button
-                    title="로그인"
-                    onPress={() => navigation.navigate('Login')}
-                  />
-                  <Button
-                    title="회원가입"
-                    onPress={() => navigation.navigate('Signup')}
-                  />
-                </>
-              )}
-            </View>
-          </View>
-        </View>
+        <Header
+          appName={appName}
+          isLogin={isLogin}
+          onLogoutSubmit={onLogoutSubmit}
+          setOpen={setOpen}
+          navigation={navigation}
+        />
 
         <ScrollView
           contentContainerStyle={styles.mainContent}
@@ -177,14 +258,13 @@ export default function Layout({ appName = '앱', children }: Props) {
           {children}
         </ScrollView>
 
-        <AddDiaryButton
-          title="+"
-          onPress={() => navigation.navigate('DiaryCreate')}
-        />
+        <AddDiaryButton title="+" onPress={handleCreateDiary} />
       </View>
     </View>
   );
 }
+
+export default memo(Layout);
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -228,7 +308,7 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     position: 'absolute',
-    width: 420,
+    width: layouts.width,
     left: '50%',
     bottom: 0,
     transform: [{ translateX: '-50%' }],
@@ -312,7 +392,7 @@ const styles = StyleSheet.create({
     color: '#111',
   },
   mainContent: {
-    width: 420,
+    width: layouts.width,
     paddingBottom: 100,
   },
 });

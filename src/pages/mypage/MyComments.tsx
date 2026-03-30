@@ -3,7 +3,7 @@ import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   deleteCommentByIdApi,
   getCommentsByUserApi,
-  putCommentByIdApi,  
+  putCommentByIdApi,
 } from '../../api/sehodiary-api';
 import { CommentRequestType, CommentResponseType } from '../../types/type';
 import CommentCard1 from '../../components/react-native-card/CommentCard1';
@@ -13,14 +13,20 @@ import { showToast } from '../../layouts/Toast';
 const MyComments = () => {
   const { diary, setDiary, setCommentList, myCommentList, setMyCommentList } =
     useLogin();
+  const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
+    setLoading(true);
+
     getCommentsByUserApi()
       .then(res => {
         setMyCommentList(res.data ?? []);
       })
       .catch(() => {
         setMyCommentList([]);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [setMyCommentList]);
 
@@ -84,6 +90,14 @@ const MyComments = () => {
     ]);
   };
 
+  if (loading) {
+    return (
+      <View style={styles.emptyContainer}>
+        {/* <Text style={styles.emptyText}>불러오는 중...</Text> */}
+      </View>
+    );
+  }
+
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -128,6 +142,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 12,
     backgroundColor: '#f9fafb',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
   },
   emptyText: {
     fontSize: 15,

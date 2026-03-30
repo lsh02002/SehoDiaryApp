@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { useLogin } from '../../context/LoginContext';
-import { useScroll } from '../../context/ScrollContext';
 import MyDiaries from './MyDiaries';
 import MyComments from './MyComments';
 import MyActivityLogs from './MyActivityLogs';
@@ -31,8 +30,7 @@ const TABS: Array<{ key: MyPageTab; label: string }> = [
 
 const MyPage = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'MyPage'>>();
-  const { isLogin } = useLogin();
-  const { mypageTab, setMypageTab } = useScroll();
+  const { isLogin, mypageTab, setMypageTab } = useLogin();
 
   const initialTab = useMemo<MyPageTab>(() => {
     const tab = route.params?.tab;
@@ -121,7 +119,7 @@ const MyPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',        
+    backgroundColor: '#ffffff',
   },
   centeredContainer: {
     flex: 1,
