@@ -129,9 +129,11 @@ export default function Layout({ appName = '앱', children }: Props) {
               </View>
 
               <View style={styles.sidebarContent}>
-                <RootSiblingParent>
-                  {contentReady ? <CommentPage /> : null}
-                </RootSiblingParent>
+                {contentReady ? (
+                  <RootSiblingParent>
+                    <CommentPage />
+                  </RootSiblingParent>
+                ) : null}
               </View>
             </Animated.View>
           </View>
