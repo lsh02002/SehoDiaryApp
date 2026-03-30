@@ -14,7 +14,7 @@ const iconStyle = {
 };
 
 const BottomTabNavigator = () => {
-  const { isLogin } = useLogin();
+  const { isLogin, open, setOpen } = useLogin();
   const insets = useSafeAreaInsets();
 
   return (
@@ -37,6 +37,15 @@ const BottomTabNavigator = () => {
       <Tab.Screen
         name="Home"
         component={RootNavigator}
+        listeners={{
+          tabPress: () => {
+            if (open) {
+              setTimeout(() => {
+                setOpen(false);
+              }, 100);
+            }
+          },
+        }}
         options={{
           tabBarLabel: '홈',
           // eslint-disable-next-line react/no-unstable-nested-components
@@ -54,6 +63,15 @@ const BottomTabNavigator = () => {
         <Tab.Screen
           name="MyPage"
           component={MyPage}
+          listeners={{
+            tabPress: () => {
+              if (open) {
+                setTimeout(() => {
+                  setOpen(false);
+                }, 100);
+              }
+            },
+          }}
           initialParams={{ tab: 'info' }}
           options={{
             tabBarLabel: '마이페이지',
