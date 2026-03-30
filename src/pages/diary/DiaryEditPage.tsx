@@ -57,7 +57,7 @@ const DiaryEditPage = ({
   const [title, setTitle] = useState('');
   const [weather, setWeather] = useState('');
   const [visibility, setVisibility] = useState('PUBLIC');
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState<string | null>(null);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [commentsCount, setCommentsCount] = useState(-1);
   const [likesCount, setLikesCount] = useState(-1);
@@ -139,7 +139,7 @@ const DiaryEditPage = ({
   const handleEditDiary = () => {
     const data: DiaryRequestType = {
       title,
-      content,
+      content: content ?? '',
       date: date?.toLocaleDateString('sv-SE') ?? '',
       visibility,
       weather,
@@ -195,7 +195,7 @@ const DiaryEditPage = ({
       id: Number(diaryId),
       nickname,
       title,
-      content,
+      content: content ?? '',
       date: date?.toLocaleDateString('sv-SE') ?? '',
       visibility,
       weather,
@@ -280,15 +280,17 @@ const DiaryEditPage = ({
             />
           </TwoDiv>
 
-          <PellRichEditorInput
-            ref={contentRef}
-            title="내용"
-            data={content}
-            setData={setContent}
-            onPressNext={() => emotionSelectRef.current?.focus()}
-            rows={8}
-          />
-
+          {content != null && (
+            <PellRichEditorInput
+              ref={contentRef}
+              title="내용"
+              data={content ?? ''}
+              setData={setContent}
+              onPressNext={() => emotionSelectRef.current?.focus()}
+              rows={8}
+            />
+          )}
+          
           <View style={styles.actionRow}>
             <Pressable
               onPress={handleOpenComment}
