@@ -69,7 +69,7 @@ const ImageCard = ({ diary, imageUrl }: Props) => {
 const styles = StyleSheet.create({
   imageWrapper: {
     justifyContent: 'center',
-    paddingVertical: 8,
+    paddingVertical: 8,    
   },
   image: {
     width: '100%',
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   modalCard: {
-    width: '100%',    
+    width: '100%',
     maxHeight: '80%',
     backgroundColor: '#fff',
     borderRadius: 20,
@@ -123,4 +123,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ImageCard;
+export default React.memo(ImageCard);

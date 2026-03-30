@@ -191,4 +191,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CommentCard1;
+export default React.memo(CommentCard1);

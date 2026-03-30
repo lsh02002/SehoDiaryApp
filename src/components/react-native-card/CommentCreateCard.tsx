@@ -146,4 +146,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CommentCreateCard;
+export default React.memo(CommentCreateCard);

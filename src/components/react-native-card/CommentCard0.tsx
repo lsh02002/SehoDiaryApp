@@ -63,7 +63,7 @@ const CommentCard0 = ({ comment, handleEditSave }: Props) => {
 
             <View style={styles.flex1}>
               {isEditing ? (
-                <View>                  
+                <View>
                   <PellRichEditorInput
                     title="내용"
                     data={content}
@@ -170,4 +170,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CommentCard0;
+export default React.memo(CommentCard0);

@@ -43,4 +43,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ActivityLogCard;
+export default React.memo(ActivityLogCard);

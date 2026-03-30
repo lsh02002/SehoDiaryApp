@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useCallback } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { useLogin } from '../../context/LoginContext';
 import DiaryCard1 from '../../components/react-native-card/DiaryCard1';
@@ -16,64 +16,91 @@ import { showToast } from '../../layouts/Toast';
 
 const CommentPage = () => {
   const { diary, commentList, setCommentList, setMyCommentList } = useLogin();
+  const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
-    if (diary?.id) {
-      getCommentsByDiaryApi(diary.id)
-        .then(res => {          
-          setCommentList(res.data);
+    if (!diary?.id) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
+    getCommentsByDiaryApi(diary.id)
+      .then(res => {
+        setCommentList(res.data);
+      })
+      .catch(() => {})
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [diary?.id, setCommentList]);
+
+  const handleEditSave = useCallback(
+    async (commentId: number, content: string) => {
+      const data: CommentRequestType = {
+        diaryId: diary?.id ?? -1,
+        content,
+      };
+
+      putCommentByIdApi(commentId, data)
+        .then(() => {
+          setCommentList((prev: CommentResponseType[] | undefined) =>
+            prev?.map((comment: CommentResponseType) =>
+              comment.commentId === commentId
+                ? { ...comment, content }
+                : comment,
+            ),
+          );
+
+          setMyCommentList((prev: CommentResponseType[] | undefined) =>
+            prev?.map((comment: CommentResponseType) =>
+              comment.commentId === commentId
+                ? { ...comment, content }
+                : comment,
+            ),
+          );
+
+          showToast('댓글 수정이 되었습니다.', 'success');
         })
         .catch(() => {});
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [diary?.id]);
+    },
+    [diary?.id, setCommentList, setMyCommentList],
+  );
 
-  const handleEditSave = async (commentId: number, content: string) => {
-    const data: CommentRequestType = {
-      diaryId: diary?.id ?? -1,
-      content,
-    };
-
-    putCommentByIdApi(commentId, data)
-      .then(() => {
-        setCommentList((prev: CommentResponseType[] | undefined) =>
-          prev?.map((comment: CommentResponseType) =>
-            comment.commentId === commentId ? { ...comment, content } : comment,
-          ),
-        );
-
-        setMyCommentList((prev: CommentResponseType[] | undefined) =>
-          prev?.map((comment: CommentResponseType) =>
-            comment.commentId === commentId ? { ...comment, content } : comment,
-          ),
-        );
-
-        showToast('댓글 수정이 되었습니다.', 'success');
-      })
-      .catch(() => {});
-  };
+  if (loading) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>불러오는 중...</Text>
+      </View>
+    );
+  }
 
   return (
-    <ScrollView style={styles.container}>
-      <View>
-        <DiaryCard1 diary={diary} />
-        <CommentCreateCard diaryId={diary?.id ?? -1} />
-      </View>
-      <View style={styles.listContent}>
-        {(commentList ?? []).map(comment => (
-          <CommentCard0
-            key={comment?.commentId}
-            comment={comment}
-            handleEditSave={handleEditSave}
-          />
-        ))}
-        {commentList && commentList?.length < 1 && (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>해당 댓글이 없습니다!</Text>
-          </View>
-        )}
-      </View>
-    </ScrollView>
+    <FlatList
+      style={styles.container}
+      data={commentList ?? []}
+      keyExtractor={item => String(item.commentId)}
+      renderItem={({ item }) => (
+        <CommentCard0 comment={item} handleEditSave={handleEditSave} />
+      )}
+      ListHeaderComponent={
+        <View>
+          <DiaryCard1 diary={diary} />
+          <CommentCreateCard diaryId={diary?.id ?? -1} />
+        </View>
+      }
+      ListEmptyComponent={
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>해당 댓글이 없습니다!</Text>
+        </View>
+      }
+      contentContainerStyle={styles.listContent}
+      initialNumToRender={5}
+      maxToRenderPerBatch={5}
+      windowSize={5}
+      removeClippedSubviews={true}
+    />
   );
 };
 
@@ -97,4 +124,3 @@ const styles = StyleSheet.create({
     color: '#6b7280',
   },
 });
- 

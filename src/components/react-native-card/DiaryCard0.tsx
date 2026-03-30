@@ -280,4 +280,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DiaryCard0;
+export default React.memo(DiaryCard0);

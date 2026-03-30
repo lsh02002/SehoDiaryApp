@@ -19,6 +19,7 @@ import { RootSiblingParent } from 'react-native-root-siblings';
 import { UserLogoutApi } from '../api/sehodiary-api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { Animated } from 'react-native';
 
 interface Props {
   appName?: string;
@@ -27,9 +28,37 @@ interface Props {
 
 export default function Layout({ appName = '앱', children }: Props) {
   const { open, setOpen, isLogin, setIsLogin } = useLogin();
+  const [visible, setVisible] = React.useState(false);
+  const [contentReady, setContentReady] = React.useState(false);
   const navigation = useNavigation<any>();
 
   const tabBarHeight = useBottomTabBarHeight();
+  const translateY = React.useRef(new Animated.Value(400)).current;
+
+  React.useEffect(() => {
+    if (open) {
+      setVisible(true);
+      setContentReady(false);
+
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 260,
+        useNativeDriver: true,
+      }).start(() => {
+        setContentReady(true);
+      });
+    } else if (visible) {
+      setContentReady(false);
+
+      Animated.timing(translateY, {
+        toValue: 400,
+        duration: 220,
+        useNativeDriver: true,
+      }).start(() => {
+        setVisible(false);
+      });
+    }
+  }, [open, visible, translateY]);
 
   const onLogoutSubmit = async () => {
     Alert.alert(
@@ -67,7 +96,7 @@ export default function Layout({ appName = '앱', children }: Props) {
   return (
     <View style={styles.safeArea}>
       <View style={styles.container}>
-        {open && (
+        {visible && (
           <View
             pointerEvents="box-none"
             style={[StyleSheet.absoluteFillObject, styles.overlayLayer]}
@@ -77,7 +106,17 @@ export default function Layout({ appName = '앱', children }: Props) {
               onPress={() => setOpen(false)}
             />
 
-            <View style={[styles.sidebar]}>
+            <Animated.View
+              style={[
+                styles.sidebar,
+                {
+                  transform: [
+                    { translateX: -210 }, // 기존 -50% 대체
+                    { translateY },
+                  ],
+                },
+              ]}
+            >
               <View style={styles.sidebarHeader}>
                 <Text style={styles.sidebarTitle}>댓글 창</Text>
 
@@ -91,10 +130,10 @@ export default function Layout({ appName = '앱', children }: Props) {
 
               <View style={styles.sidebarContent}>
                 <RootSiblingParent>
-                  <CommentPage />
+                  {contentReady ? <CommentPage /> : null}
                 </RootSiblingParent>
               </View>
-            </View>
+            </Animated.View>
           </View>
         )}
 
