@@ -67,15 +67,6 @@ export default function Layout({ appName = '앱', children }: Props) {
   return (
     <View style={styles.safeArea}>
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.burgerButton}
-          accessibilityLabel="메뉴 열기"
-          accessibilityRole="button"
-          onPress={() => setOpen(true)}
-        >
-          <Menu size={20} color="#111" />
-        </TouchableOpacity>
-
         {open && (
           <View
             pointerEvents="box-none"
@@ -109,6 +100,14 @@ export default function Layout({ appName = '앱', children }: Props) {
 
         <View style={styles.header}>
           <View style={styles.headerInner}>
+            <TouchableOpacity
+              style={styles.burgerButton}
+              accessibilityLabel="메뉴 열기"
+              accessibilityRole="button"
+              onPress={() => setOpen(true)}
+            >
+              <Menu size={20} color="#111" />
+            </TouchableOpacity>
             <Text style={styles.appName}>{appName}</Text>
             <View style={styles.auth}>
               {isLogin ? (
@@ -157,14 +156,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#fff',
-    maxWidth: 420,
+    display: 'flex',
+    alignItems: 'center',
   },
   burgerButton: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    width: 40,
-    height: 40,
     borderRadius: 16,
     backgroundColor: '#fff',
     alignItems: 'center',
@@ -192,9 +187,10 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     position: 'absolute',
-    left: 0,
-    right: 0,
+    width: 420,
+    left: '50%',
     bottom: 0,
+    transform: [{ translateX: '-50%' }],
     height: '65%',
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
@@ -242,6 +238,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    width: '100%',
   },
   appName: {
     fontSize: 13,
@@ -274,6 +271,7 @@ const styles = StyleSheet.create({
     color: '#111',
   },
   mainContent: {
+    width: 420,
     paddingBottom: 100,
   },
 });

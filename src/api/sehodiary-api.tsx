@@ -72,7 +72,11 @@ const UserLogoutApi = async () => {
 };
 
 const UserSetProfileImagesApi = async (data: FormData) => {
-  return api.post(`/user/profile`, data);
+  return api.put(`/user/profile`, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
 
 const getUserInfoApi = async () => {

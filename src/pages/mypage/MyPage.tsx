@@ -121,7 +121,7 @@ const MyPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#ffffff',        
   },
   centeredContainer: {
     flex: 1,
