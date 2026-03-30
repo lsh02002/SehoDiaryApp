@@ -16,7 +16,6 @@ import AddDiaryButton from '../components/react-native-form/AddDiaryButton';
 import { useNavigation } from '@react-navigation/native';
 import CommentPage from '../pages/comment/CommentPage';
 import { useLogin } from '../context/LoginContext';
-import { RootSiblingParent } from 'react-native-root-siblings';
 import { UserLogoutApi } from '../api/sehodiary-api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
@@ -36,11 +35,7 @@ const SidebarContent = memo(function SidebarContent({
 }: SidebarContentProps) {
   if (!contentReady) return null;
 
-  return (
-    <RootSiblingParent>
-      <CommentPage />
-    </RootSiblingParent>
-  );
+  return <CommentPage />;
 });
 
 interface SidebarProps {
