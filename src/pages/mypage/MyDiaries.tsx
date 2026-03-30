@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { getDiariesByUserApi } from '../../api/sehodiary-api';
 import { DiaryResponseType } from '../../types/type';
 import DiaryCard0 from '../../components/react-native-card/DiaryCard0';
@@ -7,7 +7,6 @@ import { useLogin } from '../../context/LoginContext';
 
 const MyDiaries = () => {
   const { diary } = useLogin();
-  const scrollRef = useRef<ScrollView>(null);
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -41,11 +40,7 @@ const MyDiaries = () => {
   }
 
   return (
-    <ScrollView
-      ref={scrollRef}
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.container}>
       <Text style={styles.title}>내가쓴일기 ({diaryList.length})</Text>
 
       {diaryList.length > 0 ? (
@@ -57,7 +52,7 @@ const MyDiaries = () => {
           <Text style={styles.emptyText}>해당 글이 없습니다!</Text>
         </View>
       )}
-    </ScrollView>
+    </View>
   );
 };
 

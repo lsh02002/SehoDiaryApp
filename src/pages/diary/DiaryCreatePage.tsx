@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
-  Platform,
-  ScrollView,
+  Platform,  
   StyleSheet,
   Text,
   TextInput as RNTextInput,
@@ -116,7 +115,7 @@ export default function DiaryCreatePage() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <Layout>
-        <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.container}>
           <Text style={styles.pageTitle}>일기 작성</Text>
 
           <View style={styles.section}>
@@ -206,7 +205,7 @@ export default function DiaryCreatePage() {
               disabled={isSubmitting}
             />
           </View>
-        </ScrollView>
+        </View>
       </Layout>
     </KeyboardAvoidingView>
   );

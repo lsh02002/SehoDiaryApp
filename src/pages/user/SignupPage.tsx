@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput as RNTextInput,
@@ -70,10 +69,7 @@ const SignupPage = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <Layout>
-        <ScrollView
-          contentContainerStyle={styles.container}
-          keyboardShouldPersistTaps="handled"
-        >
+        <View style={styles.container}>
           <View style={styles.headerRow}>
             <View style={styles.titleRow}>
               <FontAwesome6 name="registered" size={20} />
@@ -153,7 +149,7 @@ const SignupPage = () => {
               onPress={onSignupSubmit}
             />
           </View>
-        </ScrollView>
+        </View>
       </Layout>
     </KeyboardAvoidingView>
   );
@@ -169,7 +165,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   container: {
-    width: '100%',    
+    width: '100%',
     paddingHorizontal: 16,
     paddingVertical: 12,
   },

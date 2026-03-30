@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import {
   getUserInfoApi,
   UserSetProfileImagesApi,
@@ -60,10 +53,7 @@ const MyInfo = () => {
   );
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.container}>
       {renderReadonlyField('회원 아이디', String(id))}
       {renderReadonlyField('이메일 주소', email)}
       {renderReadonlyField('닉네임', nickname)}
@@ -88,7 +78,7 @@ const MyInfo = () => {
           <Text style={styles.primaryButtonText}>프로필 설정</Text>
         </Pressable>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

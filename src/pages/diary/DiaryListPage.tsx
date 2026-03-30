@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Text, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Text, StyleSheet, View } from 'react-native';
 import { getDiariesByPublicApi } from '../../api/sehodiary-api';
 import { DiaryResponseType } from '../../types/type';
 import DiaryCard0 from '../../components/react-native-card/DiaryCard0';
@@ -9,7 +9,6 @@ import { useFocusEffect } from '@react-navigation/native';
 
 const DiaryListPage = () => {
   const { diary } = useLogin();
-  const scrollRef = useRef<ScrollView>(null);
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -47,11 +46,7 @@ const DiaryListPage = () => {
 
   return (
     <Layout>
-      <ScrollView
-        ref={scrollRef}
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={styles.container}>
         <View style={styles.content}>
           {diaryList && diaryList.length > 0 ? (
             diaryList.map((diary0: DiaryResponseType) => (
@@ -61,7 +56,7 @@ const DiaryListPage = () => {
             <Text style={styles.emptyText}>해당 글이 없습니다!</Text>
           )}
         </View>
-      </ScrollView>
+      </View>
     </Layout>
   );
 };

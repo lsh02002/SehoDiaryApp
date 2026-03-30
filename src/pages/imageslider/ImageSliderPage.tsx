@@ -14,6 +14,7 @@ import { Extrapolation, interpolate } from 'react-native-reanimated';
 import { DiaryResponseType } from '../../types/type';
 import SelectInput from '../../components/react-native-form/SelectInput';
 import { TwoDiv } from '../../components/react-native-form/TwoDiv';
+import { layouts } from '../../themes/theme';
 
 type SwiperEffectType =
   | 'slide'
@@ -272,14 +273,20 @@ const ImageSliderPage = ({ diary }: { diary: DiaryResponseType }) => {
                   key={item.fileUrl ?? String(index)}
                   style={[
                     styles.page,
-                    { width: containerWidth, height: containerHeight },
+                    {
+                      width: containerWidth,
+                      height: layouts.height ?? containerHeight,
+                    },
                   ]}
                 >
                   <View style={styles.slide}>
                     <Image
                       source={{ uri: item.fileUrl }}
                       resizeMode="contain"
-                      style={[styles.image, { height: containerHeight - 40 }]}
+                      style={[
+                        styles.image,
+                        { width: layouts.width, height: layouts.height },
+                      ]}
                     />
                     <Text style={styles.fileName}>
                       파일명: {item.fileName ?? '-'}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { ActivityLogResponseType } from '../../types/type';
 import { getLogMessagesByUserApi } from '../../api/sehodiary-api';
 import ActivityLogCard from '../../components/react-native-card/ActivityLogCard';
@@ -32,10 +32,7 @@ const MyActivityLogs = () => {
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.container}>
       <Text style={styles.title}>내 활동 내역 ({logMessages.length})</Text>
 
       {logMessages.length > 0 ? (
@@ -47,7 +44,7 @@ const MyActivityLogs = () => {
           <Text style={styles.emptyText}>해당 메시지가 없습니다!</Text>
         </View>
       )}
-    </ScrollView>
+    </View>
   );
 };
 

@@ -16,4 +16,5 @@ export const colors = {
 
 export const layouts = {
   width: 420,
+  height: 400,
 };

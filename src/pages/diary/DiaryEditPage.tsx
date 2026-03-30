@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput as RNTextInput,
-  ScrollView,
   StyleSheet,
   Pressable,
   KeyboardAvoidingView,
@@ -21,7 +20,7 @@ import {
   DiaryRequestType,
   ImageResponseType,
   RNFileType,
-  RootStackParamList,
+  HomeStackParamList,
 } from '../../types/type';
 import { useLogin } from '../../context/LoginContext';
 import { TwoDiv } from '../../components/react-native-form/TwoDiv';
@@ -50,7 +49,7 @@ import { showToast } from '../../layouts/Toast';
 
 const DiaryEditPage = ({
   route,
-}: NativeStackScreenProps<RootStackParamList, 'DiaryEdit'>) => {
+}: NativeStackScreenProps<HomeStackParamList, 'DiaryEdit'>) => {
   const { diaryId } = route.params;
 
   const [id, setId] = useState(-1);
@@ -220,10 +219,7 @@ const DiaryEditPage = ({
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <Layout>
-        <ScrollView
-          contentContainerStyle={styles.container}
-          keyboardShouldPersistTaps="handled"
-        >
+        <View style={styles.container}>
           <Text style={styles.pageTitle}>일기 작성</Text>
 
           <TwoDiv>
@@ -362,7 +358,7 @@ const DiaryEditPage = ({
           )}
 
           <ConfirmButton title="일기 수정" onPress={handleEditDiary} />
-        </ScrollView>
+        </View>
       </Layout>
     </KeyboardAvoidingView>
   );

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import {
   deleteCommentByIdApi,
   getCommentsByUserApi,
@@ -99,10 +99,7 @@ const MyComments = () => {
   }
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
+    <View style={styles.container}>
       <Text style={styles.title}>
         내가쓴댓글 ({myCommentList?.length ?? 0})
       </Text>
@@ -121,7 +118,7 @@ const MyComments = () => {
           <Text style={styles.emptyText}>해당 댓글이 없습니다!</Text>
         </View>
       )}
-    </ScrollView>
+    </View>
   );
 };
 

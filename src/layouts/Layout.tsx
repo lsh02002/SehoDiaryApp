@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Button,
   Alert,
   Animated,
+  StatusBar,
 } from 'react-native';
 import { Menu } from 'lucide-react-native';
 import { BackwardButton } from '../components/react-native-form/BackwardButton';
@@ -18,8 +19,13 @@ import CommentPage from '../pages/comment/CommentPage';
 import { useLogin } from '../context/LoginContext';
 import { UserLogoutApi } from '../api/sehodiary-api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import {
+  BottomTabNavigationProp,
+  useBottomTabBarHeight,
+} from '@react-navigation/bottom-tabs';
 import { layouts } from '../themes/theme';
+import { BottomTabParamList } from '../types/type';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Props {
   appName?: string;
@@ -105,6 +111,7 @@ interface HeaderProps {
   onLogoutSubmit: () => Promise<void>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   navigation: any;
+  nickname: string;
 }
 
 const Header = memo(function Header({
@@ -113,6 +120,7 @@ const Header = memo(function Header({
   onLogoutSubmit,
   setOpen,
   navigation,
+  nickname,
 }: HeaderProps) {
   const handleOpen = useCallback(() => {
     setOpen(true);
@@ -142,7 +150,12 @@ const Header = memo(function Header({
 
         <View style={styles.auth}>
           {isLogin ? (
-            <Button title="로그아웃" onPress={onLogoutSubmit} />
+            <>
+              <Button title="로그아웃" onPress={onLogoutSubmit} />
+              <View>
+                <Text style={styles.nicknameText}>{nickname}</Text>
+              </View>
+            </>
           ) : (
             <>
               <Button title="로그인" onPress={handleLogin} />
@@ -155,11 +168,15 @@ const Header = memo(function Header({
   );
 });
 
+type MyDiariesNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
+
 function Layout({ appName = '앱', children }: Props) {
   const { open, setOpen, isLogin, setIsLogin } = useLogin();
   const [visible, setVisible] = React.useState(false);
   const [contentReady, setContentReady] = React.useState(false);
+  const [nickname, setNickname] = useState('');
   const navigation = useNavigation<any>();
+  const mypagenavigation = useNavigation<MyDiariesNavigationProp>();
 
   const tabBarHeight = useBottomTabBarHeight();
   const translateY = React.useRef(new Animated.Value(400)).current;
@@ -188,6 +205,15 @@ function Layout({ appName = '앱', children }: Props) {
       });
     }
   }, [open, visible, translateY]);
+
+  React.useEffect(() => {
+    const loadNickname = async () => {
+      const name = await AsyncStorage.getItem('nickname');
+      setNickname(name ?? 'Guest');
+    };
+
+    loadNickname();
+  }, []);
 
   const onLogoutSubmit = useCallback(async () => {
     Alert.alert(
@@ -223,11 +249,14 @@ function Layout({ appName = '앱', children }: Props) {
   }, [setIsLogin]);
 
   const handleCreateDiary = useCallback(() => {
-    navigation.navigate('DiaryCreate');
-  }, [navigation]);
+    mypagenavigation.navigate('Home', {
+      screen: 'DiaryCreate',
+    });
+  }, [mypagenavigation]);
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <View style={styles.container}>
         <Sidebar
           visible={visible}
@@ -243,6 +272,7 @@ function Layout({ appName = '앱', children }: Props) {
           onLogoutSubmit={onLogoutSubmit}
           setOpen={setOpen}
           navigation={navigation}
+          nickname={nickname}
         />
 
         <ScrollView
@@ -255,7 +285,7 @@ function Layout({ appName = '앱', children }: Props) {
 
         <AddDiaryButton title="+" onPress={handleCreateDiary} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -364,13 +394,14 @@ const styles = StyleSheet.create({
   auth: {
     display: 'flex',
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 10,
   },
   userBox: {
     alignItems: 'flex-end',
   },
   nicknameText: {
-    fontSize: 13,
+    fontSize: 16,
     color: '#111',
   },
   logoutText: {
