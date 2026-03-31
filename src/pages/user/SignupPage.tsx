@@ -81,74 +81,62 @@ const SignupPage = () => {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.inputBox}>
-            <TextInput
-              ref={emailRef}
-              name="email"
-              title="이메일 주소"
-              data={email}
-              setData={setEmail}
-              returnKeyType="next"
-              onSubmitEditing={() => nicknameRef.current?.focus()}
-            />
-          </View>
+          <TextInput
+            ref={emailRef}
+            name="email"
+            title="이메일 주소"
+            data={email}
+            setData={setEmail}
+            returnKeyType="next"
+            onSubmitEditing={() => nicknameRef.current?.focus()}
+          />
 
-          <View style={styles.inputBox}>
-            <TextInput
-              ref={nicknameRef}
-              name="nickname"
-              title="닉네임"
-              data={nickname}
-              setData={setNickname}
-              returnKeyType="next"
-              onSubmitEditing={() => passwordRef.current?.focus()}
-            />
-          </View>
+          <TextInput
+            ref={nicknameRef}
+            name="nickname"
+            title="닉네임"
+            data={nickname}
+            setData={setNickname}
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+          />
 
-          <View style={styles.inputBox}>
-            <PasswordInput
-              ref={passwordRef}
-              name="password"
-              title="비밀번호"
-              isPasswordVisible={isPasswordVisible}
-              data={password}
-              setData={setPassword}
-              returnKeyType="next"
-              onSubmitEditing={() => passwordConfirmRef.current?.focus()}
-            />
-          </View>
+          <PasswordInput
+            ref={passwordRef}
+            name="password"
+            title="비밀번호"
+            isPasswordVisible={isPasswordVisible}
+            data={password}
+            setData={setPassword}
+            returnKeyType="next"
+            onSubmitEditing={() => passwordConfirmRef.current?.focus()}
+          />
 
-          <View style={styles.inputBox}>
-            <PasswordInput
-              ref={passwordConfirmRef}
-              name="passwordConfirm"
-              title="비밀번호 확인"
-              isPasswordVisible={isPasswordVisible}
-              data={passwordConfirm}
-              setData={setPasswordConfirm}
-              returnKeyType="next"
-              onSubmitEditing={() => checkboxRef.current?.focus()}
-            />
-          </View>
+          <PasswordInput
+            ref={passwordConfirmRef}
+            name="passwordConfirm"
+            title="비밀번호 확인"
+            isPasswordVisible={isPasswordVisible}
+            data={passwordConfirm}
+            setData={setPasswordConfirm}
+            returnKeyType="next"
+            onSubmitEditing={() => checkboxRef.current?.focus()}
+          />
 
-          <View style={styles.inputBox}>
-            <CheckboxInput
-              ref={checkboxRef}
-              name="istext"
-              title="암호보기"
-              checked={isPasswordVisible}
-              setChecked={setIsPasswordVisible}
-              opPressNext={() => confirmButtonRef.current?.focus()}
-            />
-          </View>
+          <CheckboxInput
+            ref={checkboxRef}
+            name="istext"
+            title="암호보기"
+            checked={isPasswordVisible}
+            setChecked={setIsPasswordVisible}
+            opPressNext={() => confirmButtonRef.current?.focus()}
+          />
 
-          <View style={styles.buttonBox}>
-            <ConfirmButton
-              ref={confirmButtonRef}
-              title="회원 가입"
-              onPress={onSignupSubmit}
-            />
-          </View>
+          <ConfirmButton
+            ref={confirmButtonRef}
+            title="회원 가입"
+            onPress={onSignupSubmit}
+          />
         </View>
       </Layout>
     </KeyboardAvoidingView>

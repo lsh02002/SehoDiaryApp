@@ -68,37 +68,31 @@ const LoginPage = () => {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.inputBox}>
-            <TextInput
-              ref={emailRef}
-              name="email"
-              title="이메일 주소"
-              data={email}
-              setData={setEmail}
-              returnKeyType="next"
-              onSubmitEditing={() => passwordRef.current?.focus()}
-            />
-          </View>
+          <TextInput
+            ref={emailRef}
+            name="email"
+            title="이메일 주소"
+            data={email}
+            setData={setEmail}
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+          />
 
-          <View style={styles.inputBox}>
-            <PasswordInput
-              ref={passwordRef}
-              name="password"
-              title="비밀 번호"
-              data={password}
-              setData={setPassword}
-              returnKeyType="next"
-              onSubmitEditing={() => confirmButtonRef.current?.focus()}
-            />
-          </View>
+          <PasswordInput
+            ref={passwordRef}
+            name="password"
+            title="비밀 번호"
+            data={password}
+            setData={setPassword}
+            returnKeyType="next"
+            onSubmitEditing={() => confirmButtonRef.current?.focus()}
+          />
 
-          <View style={styles.buttonBox}>
-            <ConfirmButton
-              ref={confirmButtonRef}
-              title="로그인"
-              onPress={onLoginSubmit}
-            />
-          </View>
+          <ConfirmButton
+            ref={confirmButtonRef}
+            title="로그인"
+            onPress={onLoginSubmit}
+          />
         </View>
       </Layout>
     </KeyboardAvoidingView>
@@ -139,12 +133,5 @@ const styles = StyleSheet.create({
   linkText: {
     color: '#4680ff',
     fontSize: 14,
-  },
-  inputBox: {
-    width: '100%',
-    marginBottom: 16,
-  },
-  buttonBox: {
-    width: '100%',
   },
 });
