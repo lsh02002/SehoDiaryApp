@@ -6,7 +6,7 @@ import ActivityLogCard from '../../components/react-native-card/ActivityLogCard'
 
 const MyActivityLogs = () => {
   const [logMessages, setLogMessages] = useState<ActivityLogResponseType[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);

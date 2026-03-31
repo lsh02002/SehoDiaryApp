@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -172,16 +172,16 @@ type MyDiariesNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
 function Layout({ appName = '앱', children }: Props) {
   const { open, setOpen, isLogin, setIsLogin } = useLogin();
-  const [visible, setVisible] = React.useState(false);
-  const [contentReady, setContentReady] = React.useState(false);
+  const [visible, setVisible] = useState(false);
+  const [contentReady, setContentReady] = useState(false);
   const [nickname, setNickname] = useState('');
   const navigation = useNavigation<any>();
   const mypagenavigation = useNavigation<MyDiariesNavigationProp>();
 
   const tabBarHeight = useBottomTabBarHeight();
-  const translateY = React.useRef(new Animated.Value(400)).current;
+  const translateY = useRef(new Animated.Value(400)).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       setVisible(true);
       setContentReady(false);
@@ -206,7 +206,7 @@ function Layout({ appName = '앱', children }: Props) {
     }
   }, [open, visible, translateY]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadNickname = async () => {
       const name = await AsyncStorage.getItem('nickname');
       setNickname(name ?? 'Guest');

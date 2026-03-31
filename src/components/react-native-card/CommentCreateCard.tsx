@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommentRequestType } from '../../types/type';
@@ -10,7 +10,7 @@ const CommentCreateCard = ({ diaryId }: { diaryId: number }) => {
   const [nickname, setNickname] = useState('');
   const [content, setContent] = useState('');
 
-  React.useEffect(() => {
+  useEffect(() => {
     AsyncStorage.getItem('nickname')
       .then(value => setNickname(value ?? ''))
       .catch(() => setNickname(''));

@@ -83,6 +83,8 @@ const DiaryEditPage = ({
   const checkboxRef = useRef<View | null>(null);
   const imageInputRef = useRef<ImageInputRef | null>(null);
 
+  const [loading, setLoading] = useState(true);
+
   const visibilityOptions: Option[] = [
     { label: 'PUBLIC', value: 'PUBLIC' },
     { label: 'PRIVATE', value: 'PRIVATE' },
@@ -90,6 +92,8 @@ const DiaryEditPage = ({
   ];
 
   useEffect(() => {
+    setLoading(true);
+
     getOneDiaryApi(Number(diaryId))
       .then(res => {
         const data = res.data;
@@ -115,7 +119,10 @@ const DiaryEditPage = ({
 
         setDiary(data);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        setLoading(false);
+      });
 
     if (isLogin) {
       isLikedApi(Number(diaryId))
@@ -211,6 +218,16 @@ const DiaryEditPage = ({
     setDiary(data);
     setOpen(true);
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>불러오는 중...</Text>
+        </View>
+      </Layout>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -410,5 +427,14 @@ const styles = StyleSheet.create({
   nicknameText: {
     color: '#333',
     marginBottom: 2,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  emptyText: {
+    fontSize: 15,
+    color: '#6b7280',
   },
 });

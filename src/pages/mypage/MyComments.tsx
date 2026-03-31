@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import {
   deleteCommentByIdApi,
@@ -13,7 +13,7 @@ import { showToast } from '../../layouts/Toast';
 const MyComments = () => {
   const { diary, setDiary, setCommentList, myCommentList, setMyCommentList } =
     useLogin();
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);

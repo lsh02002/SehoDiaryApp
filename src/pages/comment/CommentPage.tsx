@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { useLogin } from '../../context/LoginContext';
@@ -16,7 +16,7 @@ import { showToast } from '../../layouts/Toast';
 
 const CommentPage = () => {
   const { diary, commentList, setCommentList, setMyCommentList } = useLogin();
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!diary?.id) {

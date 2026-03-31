@@ -8,7 +8,7 @@ import { useLogin } from '../../context/LoginContext';
 const MyDiaries = () => {
   const { diary } = useLogin();
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);

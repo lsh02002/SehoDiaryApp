@@ -9,7 +9,7 @@ import Layout from '../../layouts/Layout';
 const DiaryListPage = () => {
   const { diary } = useLogin();
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
@@ -77,5 +77,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 20,
   },
-  emptyText: {},
+  emptyText: {
+    fontSize: 15,
+    color: '#6b7280',
+  },
 });

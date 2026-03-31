@@ -275,7 +275,7 @@ const ImageSliderPage = ({ diary }: { diary: DiaryResponseType }) => {
                     styles.page,
                     {
                       width: containerWidth,
-                      height: layouts.height ?? containerHeight,
+                      height: layouts.imageSliderHeight ?? containerHeight,
                     },
                   ]}
                 >
@@ -285,7 +285,10 @@ const ImageSliderPage = ({ diary }: { diary: DiaryResponseType }) => {
                       resizeMode="contain"
                       style={[
                         styles.image,
-                        { width: layouts.width, height: layouts.height },
+                        {
+                          width: layouts.width,
+                          height: layouts.imageSliderHeight,
+                        },
                       ]}
                     />
                     <Text style={styles.fileName}>
