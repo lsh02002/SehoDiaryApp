@@ -1,31 +1,28 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, View } from 'react-native';
 import { getDiariesByPublicApi } from '../../api/sehodiary-api';
 import { DiaryResponseType } from '../../types/type';
 import DiaryCard0 from '../../components/react-native-card/DiaryCard0';
 import { useLogin } from '../../context/LoginContext';
 import Layout from '../../layouts/Layout';
-import { useFocusEffect } from '@react-navigation/native';
 
 const DiaryListPage = () => {
   const { diary } = useLogin();
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
   const [loading, setLoading] = React.useState(true);
 
-  useFocusEffect(
-    useCallback(() => {
-      setLoading(true);
+  useEffect(() => {
+    setLoading(true);
 
-      getDiariesByPublicApi()
-        .then(res => {
-          setDiaryList(res.data);
-        })
-        .catch(() => {})
-        .finally(() => {
-          setLoading(false);
-        });
-    }, []),
-  );
+    getDiariesByPublicApi()
+      .then(res => {
+        setDiaryList(res.data);
+      })
+      .catch(() => {})
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   useEffect(() => {
     setDiaryList(prev => {

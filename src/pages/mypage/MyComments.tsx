@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import {
   deleteCommentByIdApi,
@@ -30,32 +30,40 @@ const MyComments = () => {
       });
   }, [setMyCommentList]);
 
-  const handleEditSave = async (commentId: number, content: string) => {
-    const data: CommentRequestType = {
-      diaryId: diary?.id ?? -1,
-      content,
-    };
+  const handleEditSave = useCallback(
+    async (commentId: number, content: string) => {
+      const data: CommentRequestType = {
+        diaryId: diary?.id ?? -1,
+        content,
+      };
 
-    putCommentByIdApi(commentId, data)
-      .then(() => {
-        setCommentList((prev: CommentResponseType[] = []) =>
-          prev.map(comment =>
-            comment.commentId === commentId ? { ...comment, content } : comment,
-          ),
-        );
+      putCommentByIdApi(commentId, data)
+        .then(() => {
+          setCommentList((prev: CommentResponseType[] = []) =>
+            prev.map(comment =>
+              comment.commentId === commentId
+                ? { ...comment, content }
+                : comment,
+            ),
+          );
 
-        setMyCommentList((prev: CommentResponseType[] = []) =>
-          prev.map(comment =>
-            comment.commentId === commentId ? { ...comment, content } : comment,
-          ),
-        );
+          setMyCommentList((prev: CommentResponseType[] = []) =>
+            prev.map(comment =>
+              comment.commentId === commentId
+                ? { ...comment, content }
+                : comment,
+            ),
+          );
 
-        showToast('댓글 수정이 되었습니다.', 'success');
-      })
-      .catch(() => {});
-  };
+          showToast('댓글 수정이 되었습니다.', 'success');
+        })
+        .catch(() => {});
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [diary?.id],
+  );
 
-  const removeComment = (commentId: number) => {
+  const removeComment = useCallback((commentId: number) => {
     deleteCommentByIdApi(commentId)
       .then(() => {
         setCommentList((prev: CommentResponseType[] = []) =>
@@ -77,7 +85,8 @@ const MyComments = () => {
         showToast('댓글 삭제가 되었습니다.', 'success');
       })
       .catch(() => {});
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleRemoveSave = async (commentId: number) => {
     Alert.alert('댓글 삭제', '해당 댓글을 삭제하시겠습니까?', [

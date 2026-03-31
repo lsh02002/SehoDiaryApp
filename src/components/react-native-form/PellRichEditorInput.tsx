@@ -48,6 +48,12 @@ const PellRichEditorInput = forwardRef<PellRichEditorInputRef, Props>(
     }, [data]);
 
     useEffect(() => {
+      if (editorRef.current && data !== null && data !== undefined) {
+        editorRef.current.setContentHTML(data);
+      }
+    }, [data]);
+
+    useEffect(() => {
       return () => {
         if (syncTimerRef.current) {
           clearTimeout(syncTimerRef.current);
