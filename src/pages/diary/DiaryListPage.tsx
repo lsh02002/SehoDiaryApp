@@ -1,28 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, View } from 'react-native';
-import { getDiariesByPublicApi } from '../../api/sehodiary-api';
-import { DiaryResponseType } from '../../types/type';
+import {
+  getDiariesByPublicApi,
+  getDiariesTargetFollowingUserIdByUser,
+} from '../../api/sehodiary-api';
+import { DiaryResponseType, HomeStackParamList } from '../../types/type';
 import DiaryCard0 from '../../components/react-native-card/DiaryCard0';
 import { useLogin } from '../../context/LoginContext';
 import Layout from '../../layouts/Layout';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-const DiaryListPage = () => {
-  const { diary } = useLogin();
+const DiaryListPage = ({
+  route,
+}: NativeStackScreenProps<HomeStackParamList, 'DiaryList'>) => {
+  const targetUserId = route.params?.targetUserId;
+
+  const { isLogin, diary } = useLogin();
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
+    if (isLogin && targetUserId != null) {
+      setLoading(true);
 
-    getDiariesByPublicApi()
-      .then(res => {
-        setDiaryList(res.data);
-      })
-      .catch(() => {})
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+      getDiariesTargetFollowingUserIdByUser(targetUserId ?? -1)
+        .then(res => {
+          setDiaryList(res.data ?? []);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(true);
+
+      getDiariesByPublicApi()
+        .then(res => {
+          setDiaryList(res.data);
+        })
+        .catch(() => {})
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [isLogin, targetUserId]);
 
   useEffect(() => {
     setDiaryList(prev => {

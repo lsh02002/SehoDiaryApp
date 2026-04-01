@@ -1,7 +1,11 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import { FollowUserResponseType } from '../../types/type';
+import { BottomTabParamList, FollowUserResponseType } from '../../types/type';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+
+type NavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
 type Props = {
   user: FollowUserResponseType;
@@ -10,6 +14,7 @@ type Props = {
 };
 
 const FollowCard = ({ user, onPressFollow, isFollowing }: Props) => {
+  const navigation = useNavigation<NavigationProp>();
   return (
     <View style={styles.card}>
       <View style={styles.body}>
@@ -26,6 +31,17 @@ const FollowCard = ({ user, onPressFollow, isFollowing }: Props) => {
           <View style={styles.content}>
             <Text style={styles.nickname}>{user?.nickname ?? ''}</Text>
           </View>
+
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('Home', {
+                screen: 'DiaryList',
+                params: { targetUserId: user?.userId },
+              })
+            }
+          >
+            <Text>다이어리 보기</Text>
+          </TouchableOpacity>
 
           {onPressFollow && (
             <TouchableOpacity

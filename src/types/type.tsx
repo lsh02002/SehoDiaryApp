@@ -13,7 +13,7 @@ export type UserInfoResponseType = {
   email: string;
   nickname: string;
   profileImages: string[];
-}
+};
 
 export type DiaryRequestType = {
   title: string;
@@ -86,7 +86,7 @@ export type FollowUserResponseType = {
   userId: number;
   nickname: string;
   profileImageUrl: string;
-}
+};
 
 export type RNFileType = {
   uri: string;
@@ -99,7 +99,7 @@ export type HomeStackParamList = {
   Login: undefined;
   Signup: undefined;
   DiaryCreate: undefined;
-  DiaryList: undefined;
+  DiaryList: { targetUserId: number };
   DiaryEdit: { diaryId: number };
 };
 

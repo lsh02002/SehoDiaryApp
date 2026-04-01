@@ -31,7 +31,7 @@ export const LoginContext = createContext<LoginContextValue | undefined>(
 export const LoginProvider = ({ children }: { children: ReactNode }) => {
   const [isLogin, setIsLogin] = useState(false);
   const [open, setOpen] = useState(false);
-  const [mypageTab, setMypageTab] = useState('info');
+  const [mypageTab, setMypageTab] = useState('follow');
   const [diary, setDiary] = useState<DiaryResponseType>();
   const [commentList, setCommentList] = useState<
     CommentResponseType[] | undefined
