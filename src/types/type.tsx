@@ -87,8 +87,8 @@ export type FollowUserResponseType = {
   nickname: string;
   profileImageUrl: string;
   introduction?: string | null;
-  followerCount?: number;
-  followingCount?: number;
+  followerCounter?: number;
+  followingCounter?: number;
 };
 
 export type RNFileType = {

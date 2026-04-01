@@ -1,18 +1,12 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import { FollowUserResponseType } from '../../types/type';
 
-type UserProfileCardProps = {
-  user: {
-    id: number;
-    nickname: string;
-    profileImageUrl?: string | null;
-    introduction?: string | null;
-    followerCount?: number;
-    followingCount?: number;
-  } | null;
-};
-
-export default function UserProfileCard({ user }: UserProfileCardProps) {
+export default function UserProfileCard({
+  user,
+}: {
+  user: FollowUserResponseType | null;
+}) {
   if (!user) return null;
 
   return (
@@ -32,8 +26,12 @@ export default function UserProfileCard({ user }: UserProfileCardProps) {
         </Text>
 
         <View style={styles.meta}>
-          <Text style={styles.metaText}>팔로워 {user.followerCount ?? 0}</Text>
-          <Text style={styles.metaText}>팔로잉 {user.followingCount ?? 0}</Text>
+          <Text style={styles.metaText}>
+            팔로워 {user.followerCounter ?? 0}
+          </Text>
+          <Text style={styles.metaText}>
+            팔로잉 {user.followingCounter ?? 0}
+          </Text>
         </View>
       </View>
     </View>
