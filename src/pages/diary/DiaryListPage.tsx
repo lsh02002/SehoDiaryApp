@@ -9,21 +9,22 @@ import DiaryCard0 from '../../components/react-native-card/DiaryCard0';
 import { useLogin } from '../../context/LoginContext';
 import Layout from '../../layouts/Layout';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import UserProfileCard from '../../components/react-native-card/UserProfileCard';
 
 const DiaryListPage = ({
   route,
 }: NativeStackScreenProps<HomeStackParamList, 'DiaryList'>) => {
-  const targetUserId = route.params?.targetUserId;
+  const targetUser = route.params?.targetUser;
 
   const { isLogin, diary } = useLogin();
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isLogin && targetUserId != null) {
+    if (isLogin && targetUser?.userId != null) {
       setLoading(true);
 
-      getDiariesTargetFollowingUserIdByUser(targetUserId ?? -1)
+      getDiariesTargetFollowingUserIdByUser(targetUser?.userId ?? -1)
         .then(res => {
           setDiaryList(res.data ?? []);
         })
@@ -42,7 +43,7 @@ const DiaryListPage = ({
           setLoading(false);
         });
     }
-  }, [isLogin, targetUserId]);
+  }, [isLogin, targetUser?.userId]);
 
   useEffect(() => {
     setDiaryList(prev => {
@@ -65,6 +66,7 @@ const DiaryListPage = ({
     <Layout>
       <View style={styles.container}>
         <View style={styles.content}>
+          <UserProfileCard user={targetUser ?? null} />
           {diaryList && diaryList.length > 0 ? (
             diaryList.map((diary0: DiaryResponseType) => (
               <DiaryCard0 key={diary0?.id} diary0={diary0} />

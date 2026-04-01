@@ -86,6 +86,9 @@ export type FollowUserResponseType = {
   userId: number;
   nickname: string;
   profileImageUrl: string;
+  introduction?: string | null;
+  followerCount?: number;
+  followingCount?: number;
 };
 
 export type RNFileType = {
@@ -99,7 +102,7 @@ export type HomeStackParamList = {
   Login: undefined;
   Signup: undefined;
   DiaryCreate: undefined;
-  DiaryList: { targetUserId: number };
+  DiaryList: { targetUser?: FollowUserResponseType };
   DiaryEdit: { diaryId: number };
 };
 

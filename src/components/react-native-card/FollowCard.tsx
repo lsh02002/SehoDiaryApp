@@ -36,7 +36,7 @@ const FollowCard = ({ user, onPressFollow, isFollowing }: Props) => {
             onPress={() =>
               navigation.navigate('Home', {
                 screen: 'DiaryList',
-                params: { targetUserId: user?.userId },
+                params: { targetUser: user },
               })
             }
           >
