@@ -158,6 +158,22 @@ const getEmotionsApi = async () => {
   return api.get(`/emotion/all`);
 };
 
+const getFollowingListByUserApi = async () => {
+  return api.get(`/follow/following`);
+};
+
+const getFollowerListByUserApi = async () => {
+  return api.get(`/follow/follower`);
+};
+
+const getDiscoverListByUserApi = async () => {
+  return api.get(`/follow/discover`);
+};
+
+const createFollowApi = async (targetUserId: number) => {
+  return api.post(`/follow/${targetUserId}/follow`);
+};
+
 export {
   UserLoginApi,
   UserSignupApi,
@@ -180,4 +196,8 @@ export {
   deleteLikeApi,
   getLogMessagesByUserApi,
   getEmotionsApi,
+  getFollowingListByUserApi,
+  getFollowerListByUserApi,
+  getDiscoverListByUserApi,
+  createFollowApi,
 };

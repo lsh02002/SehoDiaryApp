@@ -66,7 +66,9 @@ const SelectInput = forwardRef<SelectInputRef, Props>(
           style={[styles.trigger, disabled && styles.disabled]}
         >
           <Text style={!value ? styles.placeholder : styles.valueText}>
-            {selectedLabel ?? placeholder ?? `${title}을(를) 선택하세요`}
+            {disabled
+              ? `${title}이(가) 비어있습니다.`
+              : selectedLabel ?? placeholder ?? `${title}을(를) 선택하세요`}
           </Text>
           <Text style={styles.chevron}>▾</Text>
         </Pressable>

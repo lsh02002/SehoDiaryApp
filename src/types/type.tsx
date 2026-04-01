@@ -8,6 +8,13 @@ export type UserSignupType = {
   passwordConfirm: string;
 };
 
+export type UserInfoResponseType = {
+  id: number;
+  email: string;
+  nickname: string;
+  profileImages: string[];
+}
+
 export type DiaryRequestType = {
   title: string;
   content: string;
@@ -73,6 +80,13 @@ export type EmotionResponseType = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type FollowUserResponseType = {
+  id: number;
+  userId: number;
+  nickname: string;
+  profileImageUrl: string;
+}
 
 export type RNFileType = {
   uri: string;

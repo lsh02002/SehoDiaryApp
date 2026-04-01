@@ -13,8 +13,9 @@ import MyComments from './MyComments';
 import MyActivityLogs from './MyActivityLogs';
 import MyInfo from './MyInfo';
 import Layout from '../../layouts/Layout';
+import MyFollow from './MyFollow';
 
-type MyPageTab = 'info' | 'mydiary' | 'activitylog';
+type MyPageTab = 'follow' | 'info' | 'mydiary' | 'activitylog';
 
 type RootStackParamList = {
   MyPage: {
@@ -23,6 +24,7 @@ type RootStackParamList = {
 };
 
 const TABS: Array<{ key: MyPageTab; label: string }> = [
+  { key: 'follow', label: '팔로우' },
   { key: 'info', label: '회원 정보' },
   { key: 'mydiary', label: '내가쓴일기' },
   { key: 'activitylog', label: '활동 로그 내역' },
@@ -34,9 +36,12 @@ const MyPage = () => {
 
   const initialTab = useMemo<MyPageTab>(() => {
     const tab = route.params?.tab;
-    return tab === 'info' || tab === 'mydiary' || tab === 'activitylog'
+    return tab === 'follow' ||
+      tab === 'info' ||
+      tab === 'mydiary' ||
+      tab === 'activitylog'
       ? tab
-      : 'info';
+      : 'follow';
   }, [route.params?.tab]);
 
   useEffect(() => {
@@ -53,6 +58,8 @@ const MyPage = () => {
 
   const renderContent = () => {
     switch (currentTab) {
+      case 'follow':
+        return <MyFollow />;
       case 'info':
         return <MyInfo />;
       case 'mydiary':
