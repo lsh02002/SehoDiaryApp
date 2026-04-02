@@ -61,11 +61,17 @@ const MyFollow = () => {
   }, [refresh]);
 
   const handleFollowSubmit = async () => {
-    createFollowApi(targetUserId).then(() => {
-      showToast('팔로우에 성공했습니다.', 'success');
+    createFollowApi(targetUserId)
+      .then(() => {
+        showToast('팔로우에 성공했습니다.', 'success');
 
-      setRefresh(prev => !prev);
-    });
+        setRefresh(prev => !prev);
+      })
+      .catch(error => {
+        console.log(error.response?.status);
+        console.log(error.response?.data);
+        console.log(error.config);
+      });
   };
 
   if (loading) {

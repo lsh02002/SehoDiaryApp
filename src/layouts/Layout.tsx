@@ -10,6 +10,7 @@ import {
   Alert,
   Animated,
   StatusBar,
+  BackHandler,
 } from 'react-native';
 import { Menu } from 'lucide-react-native';
 import { BackwardButton } from '../components/react-native-form/BackwardButton';
@@ -62,6 +63,20 @@ const Sidebar = memo(function Sidebar({
   const handleClose = useCallback(() => {
     setOpen(false);
   }, [setOpen]);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    const subscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      () => {
+        handleClose();
+        return true; // 기본 뒤로가기 막고 모달/사이드바만 닫기
+      },
+    );
+
+    return () => subscription.remove();
+  }, [visible, handleClose]);
 
   if (!visible) return null;
 
@@ -213,7 +228,7 @@ function Layout({ appName = '앱', children }: Props) {
     };
 
     loadNickname();
-  }, []);
+  }, [isLogin]);
 
   const onLogoutSubmit = useCallback(async () => {
     Alert.alert(
