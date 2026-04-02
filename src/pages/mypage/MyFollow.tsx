@@ -67,11 +67,7 @@ const MyFollow = () => {
 
         setRefresh(prev => !prev);
       })
-      .catch(error => {
-        console.log(error.response?.status);
-        console.log(error.response?.data);
-        console.log(error.config);
-      });
+      .catch(() => {});
   };
 
   if (loading) {
