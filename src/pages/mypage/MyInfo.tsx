@@ -10,7 +10,7 @@ import ImageInput from '../../components/react-native-form/ImageInput';
 import RNTextInput from '../../components/react-native-form/TextInput';
 
 const MyInfo = () => {
-  const [id, setId] = useState(-1);
+  const [userId, setUserId] = useState(-1);
   const [email, setEmail] = useState('');
   const [nickname, setNickname] = useState('');
   const [introduction, setIntroduction] = useState('');
@@ -24,7 +24,7 @@ const MyInfo = () => {
 
     getUserInfoApi()
       .then(res => {
-        setId(res?.data?.id ?? -1);
+        setUserId(res?.data?.userId ?? -1);
         setEmail(res?.data?.email ?? '');
         setNickname(res?.data?.nickname ?? '');
         setImageUrls(res?.data?.profileImages ?? []);
@@ -69,7 +69,7 @@ const MyInfo = () => {
 
   return (
     <View style={styles.container}>
-      {renderReadonlyField('회원 아이디', String(id))}
+      {renderReadonlyField('회원 아이디', String(userId))}
       {renderReadonlyField('이메일 주소', email)}
       {renderReadonlyField('닉네임', nickname)}
 
@@ -94,7 +94,7 @@ const MyInfo = () => {
       </View>
 
       <Text style={styles.notice}>
-        프로필 사진 이외는 가입할 때 정해집니다.
+        소개글과 프로필 사진 이외는 가입할 때 정해집니다.
       </Text>
 
       <View style={styles.buttonRow}>
