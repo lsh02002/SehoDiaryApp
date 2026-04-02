@@ -34,6 +34,7 @@ export type PellRichEditorInputRef = {
 
 const PellRichEditorInput = forwardRef<PellRichEditorInputRef, Props>(
   ({ disabled = false, title, data, setData, rows = 2, onPressNext }, ref) => {
+    const isInitialized = useRef(false);
     const editorRef = useRef<RichEditor>(null);
     const htmlRef = useRef(data || '');
     const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -48,8 +49,14 @@ const PellRichEditorInput = forwardRef<PellRichEditorInputRef, Props>(
     }, [data]);
 
     useEffect(() => {
-      if (editorRef.current && data !== null && data !== undefined) {
+      if (
+        !isInitialized.current &&
+        editorRef.current &&
+        data !== null &&
+        data !== undefined
+      ) {
         editorRef.current.setContentHTML(data);
+        isInitialized.current = true;
       }
     }, [data]);
 
