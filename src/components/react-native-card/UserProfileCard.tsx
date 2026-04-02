@@ -1,11 +1,11 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { FollowUserResponseType } from '../../types/type';
+import { UserInfoResponseType } from '../../types/type';
 
 export default function UserProfileCard({
   user,
 }: {
-  user: FollowUserResponseType | null;
+  user: UserInfoResponseType | null;
 }) {
   if (!user) return null;
 
@@ -13,7 +13,7 @@ export default function UserProfileCard({
     <View style={styles.container}>
       <Image
         source={{
-          uri: user.profileImageUrl || 'https://via.placeholder.com/72',
+          uri: user.profileImage || 'https://via.placeholder.com/72',
         }}
         style={styles.image}
       />
