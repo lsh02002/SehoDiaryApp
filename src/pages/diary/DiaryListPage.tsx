@@ -21,10 +21,10 @@ const DiaryListPage = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isLogin && targetUser?.userId != null) {
+    if (isLogin && targetUser?.id != null) {
       setLoading(true);
 
-      getDiariesTargetFollowingUserIdByUser(targetUser?.userId ?? -1)
+      getDiariesTargetFollowingUserIdByUser(targetUser?.id ?? -1)
         .then(res => {
           setDiaryList(res.data ?? []);
         })
@@ -43,7 +43,7 @@ const DiaryListPage = ({
           setLoading(false);
         });
     }
-  }, [isLogin, targetUser?.userId]);
+  }, [isLogin, targetUser?.id]);
 
   useEffect(() => {
     setDiaryList(prev => {

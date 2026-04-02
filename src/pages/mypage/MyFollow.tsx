@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { FollowUserResponseType, UserInfoResponseType } from '../../types/type';
+import { UserInfoResponseType } from '../../types/type';
 import {
   createFollowApi,
   getDiscoverListByUserApi,
@@ -15,10 +15,10 @@ import { showToast } from '../../layouts/Toast';
 const MyFollow = () => {
   const [targetUserId, setTargetUserId] = useState(-1);
   const [userList, setUserList] = useState<UserInfoResponseType[]>([]);
-  const [followingList, setFollowingList] = useState<FollowUserResponseType[]>(
+  const [followingList, setFollowingList] = useState<UserInfoResponseType[]>(
     [],
   );
-  const [followerList, setFollowerList] = useState<FollowUserResponseType[]>(
+  const [followerList, setFollowerList] = useState<UserInfoResponseType[]>(
     [],
   );
   const [refresh, setRefresh] = useState(false);
@@ -98,7 +98,7 @@ const MyFollow = () => {
       />
       <Text style={styles.title}>팔로잉 ({followingList.length})</Text>
       {followingList.length > 0 ? (
-        followingList.map((user: FollowUserResponseType) => (
+        followingList.map((user: UserInfoResponseType) => (
           <FollowCard key={String(user?.id)} user={user} isFollowing={true} />
         ))
       ) : (
@@ -109,7 +109,7 @@ const MyFollow = () => {
       <Text style={styles.title}>팔로워 ({followerList.length})</Text>
 
       {followerList.length > 0 ? (
-        followerList.map((user: FollowUserResponseType) => (
+        followerList.map((user: UserInfoResponseType) => (
           <FollowCard key={String(user?.id)} user={user} isFollowing={false} />
         ))
       ) : (

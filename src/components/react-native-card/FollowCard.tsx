@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import { BottomTabParamList, FollowUserResponseType } from '../../types/type';
+import { BottomTabParamList, UserInfoResponseType } from '../../types/type';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -8,7 +8,7 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 type NavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
 type Props = {
-  user: FollowUserResponseType;
+  user: UserInfoResponseType;
   onPressFollow?: () => void;
   isFollowing?: boolean;
 };
@@ -19,9 +19,9 @@ const FollowCard = ({ user, onPressFollow, isFollowing }: Props) => {
     <View style={styles.card}>
       <View style={styles.body}>
         <View style={styles.row}>
-          {user?.profileImageUrl ? (
+          {user?.profileImage ? (
             <Image
-              source={{ uri: user?.profileImageUrl }}
+              source={{ uri: user?.profileImage }}
               style={styles.profileImage}
             />
           ) : (

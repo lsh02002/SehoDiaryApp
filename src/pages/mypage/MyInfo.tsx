@@ -7,32 +7,39 @@ import {
 import { showToast } from '../../layouts/Toast';
 import { RNFileType } from '../../types/type';
 import ImageInput from '../../components/react-native-form/ImageInput';
+import RNTextInput from '../../components/react-native-form/TextInput';
 
 const MyInfo = () => {
   const [id, setId] = useState(-1);
   const [email, setEmail] = useState('');
   const [nickname, setNickname] = useState('');
+  const [introduction, setIntroduction] = useState('');
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [images, setImages] = useState<RNFileType[] | null>(null);
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
+    setLoading(true);
+
     getUserInfoApi()
       .then(res => {
         setId(res?.data?.id ?? -1);
         setEmail(res?.data?.email ?? '');
         setNickname(res?.data?.nickname ?? '');
         setImageUrls(res?.data?.profileImages ?? []);
+        setIntroduction(res?.data?.introduction);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   const handleSetProfiles = () => {
-    if (!images || images?.length === 0) {
-      showToast('선택되거나 변경된 이미지가 없습니다.', 'error');
-      return;
-    }
-
     const formDataToSend = new FormData();
+
+    formDataToSend.append('introduction', introduction);
 
     (images ?? []).forEach(file => {
       formDataToSend.append('files', file);
@@ -52,11 +59,28 @@ const MyInfo = () => {
     </View>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>불러오는 중...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {renderReadonlyField('회원 아이디', String(id))}
       {renderReadonlyField('이메일 주소', email)}
       {renderReadonlyField('닉네임', nickname)}
+
+      <View style={styles.fieldBox}>
+        <RNTextInput
+          name="introduction"
+          title="소개글"
+          data={introduction}
+          setData={setIntroduction}
+        />
+      </View>
 
       <View style={styles.fieldBox}>
         <ImageInput
@@ -162,6 +186,15 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 15,
     fontWeight: '700',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  emptyText: {
+    fontSize: 15,
+    color: '#6b7280',
   },
 });
 
