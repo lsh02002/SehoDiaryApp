@@ -88,7 +88,7 @@ const MyFollow = () => {
         setValue={v => setTargetUserId(Number(v))}
         options={userList?.map((user: UserInfoResponseType) => ({
           label: user?.nickname,
-          value: String(user?.id),
+          value: String(user?.userId),
         }))}
       />
       <ConfirmButton
@@ -99,7 +99,7 @@ const MyFollow = () => {
       <Text style={styles.title}>팔로잉 ({followingList.length})</Text>
       {followingList.length > 0 ? (
         followingList.map((user: UserInfoResponseType) => (
-          <FollowCard key={String(user?.id)} user={user} isFollowing={true} />
+          <FollowCard key={String(user?.userId)} user={user} isFollowing={true} />
         ))
       ) : (
         <View style={styles.emptyBox}>
@@ -110,7 +110,7 @@ const MyFollow = () => {
 
       {followerList.length > 0 ? (
         followerList.map((user: UserInfoResponseType) => (
-          <FollowCard key={String(user?.id)} user={user} isFollowing={false} />
+          <FollowCard key={String(user?.userId)} user={user} isFollowing={false} />
         ))
       ) : (
         <View style={styles.emptyBox}>

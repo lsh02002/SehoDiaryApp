@@ -9,7 +9,7 @@ export type UserSignupType = {
 };
 
 export type UserInfoResponseType = {
-  id: number;
+  userId: number;
   email: string;
   nickname: string;
   profileImage: string;
