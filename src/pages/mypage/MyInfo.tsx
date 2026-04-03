@@ -27,7 +27,7 @@ const MyInfo = ({ reloadKey }: { reloadKey: number }) => {
         setUserId(res?.data?.userId ?? -1);
         setEmail(res?.data?.email ?? '');
         setNickname(res?.data?.nickname ?? '');
-        setImageUrls(res?.data?.profileImages ?? []);
+        setImageUrls([res?.data?.profileImage]);
         setIntroduction(res?.data?.introduction);
       })
       .catch(() => {})
