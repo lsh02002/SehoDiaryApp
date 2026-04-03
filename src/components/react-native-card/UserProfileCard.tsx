@@ -1,12 +1,15 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { UserInfoResponseType } from '../../types/type';
+import { useLogin } from '../../context/LoginContext';
 
 export default function UserProfileCard({
   user,
 }: {
   user: UserInfoResponseType | null;
 }) {
+  const { isLogin } = useLogin();
+  if (!isLogin) return null;
   if (!user) return null;
 
   return (
