@@ -38,15 +38,22 @@ const BottomTabNavigator = () => {
       <Tab.Screen
         name="Home"
         component={HomeNavigator}
-        listeners={{
-          tabPress: () => {
+        listeners={({ navigation }) => ({
+          tabPress: e => {
             if (open) {
               setTimeout(() => {
                 setOpen(false);
               }, 100);
             }
+
+            e.preventDefault();
+
+            navigation.navigate('Home', {
+              screen: 'DiaryList',
+              params: undefined,
+            });
           },
-        }}
+        })}
         options={{
           tabBarLabel: '홈',
           // eslint-disable-next-line react/no-unstable-nested-components

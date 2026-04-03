@@ -95,7 +95,7 @@ export type HomeStackParamList = {
   Login: undefined;
   Signup: undefined;
   DiaryCreate: undefined;
-  DiaryList: { targetUser?: UserInfoResponseType };
+  DiaryList: { targetUser?: UserInfoResponseType } | undefined;
   DiaryEdit: { diaryId: number };
 };
 
