@@ -86,8 +86,8 @@ const CommentPage = () => {
   return (
     <KeyboardAvoidingView
       style={styles.screen}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'position'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 350}
     >
       <FlatList
         style={styles.container}
@@ -125,11 +125,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   container: {
+    flex: 1,
     paddingHorizontal: 8,
     backgroundColor: '#fff',
   },
   listContent: {
-    paddingBottom: 100,
+    flexGrow: 1,
+    paddingBottom: 180,
   },
   emptyContainer: {
     alignItems: 'center',

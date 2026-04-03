@@ -15,6 +15,7 @@ export const colors = {
 };
 
 export const layouts = {
-  width: 420,
+  width: '100%' as const,
+  maxWidth: 480,
   imageSliderHeight: 400,
 };

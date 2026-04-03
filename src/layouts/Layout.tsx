@@ -97,7 +97,7 @@ const Sidebar = memo(function Sidebar({
           styles.sidebar,
           {
             transform: [
-              { translateX: -210 }, // 기존 -50% 대체
+              { translateX: 0 }, // 기존 -50% 대체
               { translateY },
             ],
           },
@@ -336,7 +336,8 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#fff',
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'stretch',
+    maxWidth: layouts.maxWidth,
   },
   burgerButton: {
     borderRadius: 16,
@@ -352,7 +353,7 @@ const styles = StyleSheet.create({
   },
   overlayLayer: {
     zIndex: 999,
-    elevation: 999,
+    elevation: 999,    
   },
   overlay: {
     position: 'absolute',
@@ -366,10 +367,9 @@ const styles = StyleSheet.create({
   },
   sidebar: {
     position: 'absolute',
-    width: layouts.width,
-    left: '50%',
+    width: '100%',
     bottom: 0,
-    transform: [{ translateX: '-50%' }],
+    alignSelf: 'center',
     height: '65%',
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
