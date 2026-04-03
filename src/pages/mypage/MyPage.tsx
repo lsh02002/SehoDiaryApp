@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -34,6 +34,11 @@ const MyPage = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'MyPage'>>();
   const { isLogin, mypageTab, setMypageTab } = useLogin();
 
+  const [infoReloadKey, setInfoReloadKey] = useState(0);
+  const [diariesReloadKey, setDiariesReloadKey] = useState(0);
+  const [commentsReloadKey, setCommentsReloadKey] = useState(0);
+  const [activityLogsReloadKey, setActivityLogsReloadKey] = useState(0);
+
   const initialTab = useMemo<MyPageTab>(() => {
     const tab = route.params?.tab;
     return tab === 'follow' ||
@@ -56,23 +61,47 @@ const MyPage = () => {
     setMypageTab(nextTab);
   };
 
+  const onRefresh = useCallback(async () => {
+    switch (currentTab) {
+      case 'info':
+        setInfoReloadKey(v => v + 1);
+        break;
+
+      case 'mydiary':
+        setDiariesReloadKey(v => v + 1);
+        setCommentsReloadKey(v => v + 1);
+        break;
+
+      case 'activitylog':
+        setActivityLogsReloadKey(v => v + 1);
+        break;
+
+      default:
+        break;
+    }
+  }, [currentTab]);
+
   const renderContent = () => {
     switch (currentTab) {
       case 'follow':
         return <MyFollow />;
+
       case 'info':
-        return <MyInfo />;
+        return <MyInfo reloadKey={infoReloadKey} />;
+
       case 'mydiary':
         return (
           <>
-            <MyDiaries />
-            <MyComments />
+            <MyDiaries reloadKey={diariesReloadKey} />
+            <MyComments reloadKey={commentsReloadKey} />
           </>
         );
+
       case 'activitylog':
-        return <MyActivityLogs />;
+        return <MyActivityLogs reloadKey={activityLogsReloadKey} />;
+
       default:
-        return <MyInfo />;
+        return <MyInfo reloadKey={infoReloadKey} />;
     }
   };
 
@@ -87,7 +116,7 @@ const MyPage = () => {
   }
 
   return (
-    <Layout>
+    <Layout onRefresh={onRefresh}>
       <View style={styles.container}>
         <View style={styles.tabList}>
           {TABS.map(tab => {

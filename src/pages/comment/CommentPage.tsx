@@ -1,5 +1,12 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { useLogin } from '../../context/LoginContext';
 import DiaryCard1 from '../../components/react-native-card/DiaryCard1';
@@ -77,36 +84,46 @@ const CommentPage = () => {
   }
 
   return (
-    <FlatList
-      style={styles.container}
-      data={commentList ?? []}
-      keyExtractor={item => String(item.commentId)}
-      renderItem={({ item }) => (
-        <CommentCard0 comment={item} handleEditSave={handleEditSave} />
-      )}
-      ListHeaderComponent={
-        <View>
-          <DiaryCard1 diary={diary} />
-          <CommentCreateCard diaryId={diary?.id ?? -1} />
-        </View>
-      }
-      ListEmptyComponent={
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>해당 댓글이 없습니다!</Text>
-        </View>
-      }
-      contentContainerStyle={styles.listContent}
-      initialNumToRender={5}
-      maxToRenderPerBatch={5}
-      windowSize={5}
-      removeClippedSubviews={true}
-    />
+    <KeyboardAvoidingView
+      style={styles.screen}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'position'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
+    >
+      <FlatList
+        style={styles.container}
+        data={commentList ?? []}
+        keyExtractor={item => String(item.commentId)}
+        renderItem={({ item }) => (
+          <CommentCard0 comment={item} handleEditSave={handleEditSave} />
+        )}
+        ListHeaderComponent={
+          <View>
+            <DiaryCard1 diary={diary} />
+            <CommentCreateCard diaryId={diary?.id ?? -1} />
+          </View>
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>해당 댓글이 없습니다!</Text>
+          </View>
+        }
+        contentContainerStyle={styles.listContent}
+        initialNumToRender={5}
+        maxToRenderPerBatch={5}
+        windowSize={5}
+        removeClippedSubviews={true}
+      />
+    </KeyboardAvoidingView>
   );
 };
 
 export default CommentPage;
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: {
     paddingHorizontal: 8,
     backgroundColor: '#fff',

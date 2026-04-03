@@ -11,6 +11,7 @@ import {
   Animated,
   StatusBar,
   BackHandler,
+  RefreshControl,
 } from 'react-native';
 import { Menu } from 'lucide-react-native';
 import { BackwardButton } from '../components/react-native-form/BackwardButton';
@@ -30,6 +31,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Props {
   appName?: string;
+  onRefresh?: () => void;
   children: React.ReactNode;
 }
 
@@ -185,7 +187,7 @@ const Header = memo(function Header({
 
 type MyDiariesNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
-function Layout({ appName = '앱', children }: Props) {
+function Layout({ appName = '앱', onRefresh, children }: Props) {
   const { open, setOpen, isLogin, setIsLogin } = useLogin();
   const [visible, setVisible] = useState(false);
   const [contentReady, setContentReady] = useState(false);
@@ -195,6 +197,19 @@ function Layout({ appName = '앱', children }: Props) {
 
   const tabBarHeight = useBottomTabBarHeight();
   const translateY = useRef(new Animated.Value(400)).current;
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    if (!onRefresh) return;
+
+    setRefreshing(true);
+    try {
+      await onRefresh();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     if (open) {
@@ -293,6 +308,9 @@ function Layout({ appName = '앱', children }: Props) {
         <ScrollView
           contentContainerStyle={styles.mainContent}
           scrollEventThrottle={16}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
         >
           <BackwardButton />
           {children}

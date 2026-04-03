@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { getDiariesByUserApi } from '../../api/sehodiary-api';
 import { DiaryResponseType } from '../../types/type';
 import DiaryCard0 from '../../components/react-native-card/DiaryCard0';
 import { useLogin } from '../../context/LoginContext';
 
-const MyDiaries = () => {
+const MyDiaries = ({ reloadKey }: { reloadKey?: number }) => {
   const { diary } = useLogin();
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     setLoading(true);
 
     getDiariesByUserApi()
@@ -24,6 +24,10 @@ const MyDiaries = () => {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData, reloadKey]);
 
   useEffect(() => {
     setDiaryList(prev =>

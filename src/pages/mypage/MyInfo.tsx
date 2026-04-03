@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import {
   getUserInfoApi,
@@ -9,7 +9,7 @@ import { RNFileType } from '../../types/type';
 import ImageInput from '../../components/react-native-form/ImageInput';
 import RNTextInput from '../../components/react-native-form/TextInput';
 
-const MyInfo = () => {
+const MyInfo = ({ reloadKey }: { reloadKey: number }) => {
   const [userId, setUserId] = useState(-1);
   const [email, setEmail] = useState('');
   const [nickname, setNickname] = useState('');
@@ -19,7 +19,7 @@ const MyInfo = () => {
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     setLoading(true);
 
     getUserInfoApi()
@@ -35,6 +35,10 @@ const MyInfo = () => {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData, reloadKey]);
 
   const handleSetProfiles = () => {
     const formDataToSend = new FormData();

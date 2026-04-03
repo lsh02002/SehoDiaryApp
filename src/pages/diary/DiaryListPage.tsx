@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Text, StyleSheet, View } from 'react-native';
 import {
   getDiariesByPublicApi,
@@ -20,7 +20,7 @@ const DiaryListPage = ({
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     if (isLogin && targetUser?.userId != null) {
       setLoading(true);
 
@@ -46,6 +46,10 @@ const DiaryListPage = ({
   }, [isLogin, targetUser?.userId]);
 
   useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
     setDiaryList(prev => {
       if (!prev) return prev;
       return prev.map(i => (i.id === diary?.id ? diary : i));
@@ -63,7 +67,7 @@ const DiaryListPage = ({
   }
 
   return (
-    <Layout>
+    <Layout onRefresh={loadData}>
       <View style={styles.container}>
         <View style={styles.content}>
           <UserProfileCard user={targetUser ?? null} />

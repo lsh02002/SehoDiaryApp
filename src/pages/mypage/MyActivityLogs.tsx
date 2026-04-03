@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ActivityLogResponseType } from '../../types/type';
 import { getLogMessagesByUserApi } from '../../api/sehodiary-api';
 import ActivityLogCard from '../../components/react-native-card/ActivityLogCard';
 
-const MyActivityLogs = () => {
+const MyActivityLogs = ({
+  reloadKey,
+}: {
+  reloadKey?: number;
+}) => {
   const [logMessages, setLogMessages] = useState<ActivityLogResponseType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     setLoading(true);
 
     getLogMessagesByUserApi()
@@ -22,6 +26,10 @@ const MyActivityLogs = () => {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData, reloadKey]);
 
   if (loading) {
     return (

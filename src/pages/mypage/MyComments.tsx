@@ -10,12 +10,12 @@ import CommentCard1 from '../../components/react-native-card/CommentCard1';
 import { useLogin } from '../../context/LoginContext';
 import { showToast } from '../../layouts/Toast';
 
-const MyComments = () => {
+const MyComments = ({ reloadKey }: { reloadKey?: number }) => {
   const { diary, setDiary, setCommentList, myCommentList, setMyCommentList } =
     useLogin();
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     setLoading(true);
 
     getCommentsByUserApi()
@@ -29,6 +29,9 @@ const MyComments = () => {
         setLoading(false);
       });
   }, [setMyCommentList]);
+  useEffect(() => {
+    loadData();
+  }, [loadData, reloadKey]);
 
   const handleEditSave = useCallback(
     async (commentId: number, content: string) => {
