@@ -88,8 +88,7 @@ export default DiaryListPage;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 12,
-    paddingHorizontal: 12,
+    marginTop: 12,    
     marginBottom: 100,
   },
   content: {
