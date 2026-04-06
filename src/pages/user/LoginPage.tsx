@@ -51,11 +51,11 @@ const LoginPage = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.root}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <Layout>
+    <Layout>
+      <KeyboardAvoidingView
+        style={styles.root}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <View style={styles.container}>
           <View style={styles.headerRow}>
             <View style={styles.titleRow}>
@@ -94,8 +94,8 @@ const LoginPage = () => {
             onPress={onLoginSubmit}
           />
         </View>
-      </Layout>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </Layout>
   );
 };
 
@@ -107,6 +107,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ffffff',
+    width: '100%',
   },
   container: {
     width: '100%',

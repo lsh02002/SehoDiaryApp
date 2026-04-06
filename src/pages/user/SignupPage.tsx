@@ -64,11 +64,11 @@ const SignupPage = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.root}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <Layout>
+    <Layout>
+      <KeyboardAvoidingView
+        style={styles.root}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <View style={styles.container}>
           <View style={styles.headerRow}>
             <View style={styles.titleRow}>
@@ -138,8 +138,8 @@ const SignupPage = () => {
             onPress={onSignupSubmit}
           />
         </View>
-      </Layout>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </Layout>
   );
 };
 
