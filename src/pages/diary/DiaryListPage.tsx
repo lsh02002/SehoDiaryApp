@@ -11,6 +11,7 @@ import Layout from '../../layouts/Layout';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import UserProfileCard from '../../components/react-native-card/UserProfileCard';
 import { BASE_URL } from '../../api/BASE_URL';
+import EventSource from 'react-native-sse';
 
 const DiaryListPage = ({
   route,
@@ -23,11 +24,13 @@ const DiaryListPage = ({
 
   const [hasNewDiary, setHasNewDiary] = useState(false);
 
-  useEffect(() => {
-    const eventSource = new EventSource(`${BASE_URL}/sse/posts`);
+  type SseEvents = 'new-post';
 
-    eventSource.addEventListener('connect', event => {
-      console.log('SSE connected:', event.data);
+  useEffect(() => {
+    const eventSource = new EventSource<SseEvents>(`${BASE_URL}/sse/posts`);
+
+    eventSource.addEventListener('open', event => {
+      console.log('SSE connected:', event.type);
     });
 
     eventSource.addEventListener('new-post', event => {
@@ -35,11 +38,12 @@ const DiaryListPage = ({
       setHasNewDiary(true);
     });
 
-    eventSource.onerror = error => {
-      console.error('SSE error:', error);
-    };
+    eventSource.addEventListener('error', event => {
+      console.error('SSE error:', event);
+    });
 
     return () => {
+      eventSource.removeAllEventListeners();
       eventSource.close();
     };
   }, []);
@@ -67,11 +71,7 @@ const DiaryListPage = ({
           setLoading(false);
         });
     }
-
-    if(hasNewDiary) {
-      setHasNewDiary(false);
-    }
-  }, [hasNewDiary, isLogin, targetUser?.userId]);
+  }, [isLogin, targetUser?.userId]);
 
   useEffect(() => {
     loadData();
@@ -109,7 +109,10 @@ const DiaryListPage = ({
                 marginBottom: '16px',
                 cursor: 'pointer',
               }}
-              onClick={loadData}
+              onClick={() => {
+                loadData();
+                setHasNewDiary(false);
+              }}
             >
               새로운 글이 올라와 있습니다. 새로고침하거나 이글을 클릭해주세요.
             </div>
