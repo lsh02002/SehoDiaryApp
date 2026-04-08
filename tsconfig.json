@@ -1,6 +1,7 @@
 {
   "extends": "@react-native/typescript-config",
   "compilerOptions": {
+    "lib": ["DOM", "ESNext"],
     "strict": true,
     "types": ["jest"]
   },

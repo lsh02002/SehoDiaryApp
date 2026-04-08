@@ -10,6 +10,7 @@ import { useLogin } from '../../context/LoginContext';
 import Layout from '../../layouts/Layout';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import UserProfileCard from '../../components/react-native-card/UserProfileCard';
+import { BASE_URL } from '../../api/BASE_URL';
 
 const DiaryListPage = ({
   route,
@@ -19,6 +20,29 @@ const DiaryListPage = ({
   const { isLogin, diary } = useLogin();
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [hasNewDiary, setHasNewDiary] = useState(false);
+
+  useEffect(() => {
+    const eventSource = new EventSource(`${BASE_URL}/sse/posts`);
+
+    eventSource.addEventListener('connect', event => {
+      console.log('SSE connected:', event.data);
+    });
+
+    eventSource.addEventListener('new-post', event => {
+      console.log('새 글 알림:', event.data);
+      setHasNewDiary(true);
+    });
+
+    eventSource.onerror = error => {
+      console.error('SSE error:', error);
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, []);
 
   const loadData = useCallback(() => {
     if (isLogin && targetUser?.userId != null) {
@@ -43,7 +67,11 @@ const DiaryListPage = ({
           setLoading(false);
         });
     }
-  }, [isLogin, targetUser?.userId]);
+
+    if(hasNewDiary) {
+      setHasNewDiary(false);
+    }
+  }, [hasNewDiary, isLogin, targetUser?.userId]);
 
   useEffect(() => {
     loadData();
@@ -71,6 +99,21 @@ const DiaryListPage = ({
       <View style={styles.container}>
         <View style={styles.content}>
           <UserProfileCard user={targetUser ?? null} />
+          {hasNewDiary && (
+            <div
+              // eslint-disable-next-line react-native/no-inline-styles
+              style={{
+                background: '#fff3cd',
+                padding: '12px 16px',
+                border: '1px solid #ffe69c',
+                marginBottom: '16px',
+                cursor: 'pointer',
+              }}
+              onClick={loadData}
+            >
+              새로운 글이 올라와 있습니다. 새로고침하거나 이글을 클릭해주세요.
+            </div>
+          )}
           {diaryList && diaryList.length > 0 ? (
             diaryList.map((diary0: DiaryResponseType) => (
               <DiaryCard0 key={diary0?.id} diary0={diary0} />
@@ -88,7 +131,7 @@ export default DiaryListPage;
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 12,    
+    marginTop: 12,
     marginBottom: 100,
   },
   content: {
