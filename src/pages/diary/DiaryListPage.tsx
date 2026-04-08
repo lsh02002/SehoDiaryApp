@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View, Pressable } from 'react-native';
 import {
   getDiariesByPublicApi,
   getDiariesTargetFollowingUserIdByUser,
@@ -100,22 +100,24 @@ const DiaryListPage = ({
         <View style={styles.content}>
           <UserProfileCard user={targetUser ?? null} />
           {hasNewDiary && (
-            <div
+            <Pressable
               // eslint-disable-next-line react-native/no-inline-styles
               style={{
-                background: '#fff3cd',
-                padding: '12px 16px',
-                border: '1px solid #ffe69c',
-                marginBottom: '16px',
-                cursor: 'pointer',
+                backgroundColor: '#fff3cd',
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+                borderWidth: 1,
+                borderColor: '#ffe69c',
+                marginBottom: 16,
+                borderRadius: 8,
               }}
-              onClick={() => {
+              onPress={() => {
                 loadData();
                 setHasNewDiary(false);
               }}
             >
-              새로운 글이 올라와 있습니다. 새로고침하거나 이글을 클릭해주세요.
-            </div>
+              <Text>새로운 글이 올라와 있습니다. 눌러서 새로고침하세요.</Text>
+            </Pressable>
           )}
           {diaryList && diaryList.length > 0 ? (
             diaryList.map((diary0: DiaryResponseType) => (
