@@ -34,8 +34,14 @@ const DiaryListPage = ({
     });
 
     eventSource.addEventListener('new-post', event => {
+      const data = JSON.parse(event.data ?? '');
+
       console.log('새 글 알림:', event.data);
-      setHasNewDiary(true);
+      if (isLogin && targetUser?.userId != null) {
+        if (targetUser?.userId === Number(data?.userId)) setHasNewDiary(true);
+      } else {
+        setHasNewDiary(true);
+      }
     });
 
     eventSource.addEventListener('error', event => {
@@ -46,7 +52,7 @@ const DiaryListPage = ({
       eventSource.removeAllEventListeners();
       eventSource.close();
     };
-  }, []);
+  }, [isLogin, targetUser?.userId]);
 
   const loadData = useCallback(() => {
     if (isLogin && targetUser?.userId != null) {
