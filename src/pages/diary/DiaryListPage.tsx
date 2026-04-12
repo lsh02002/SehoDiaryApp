@@ -138,7 +138,11 @@ const DiaryListPage = ({
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
+      setDiaryList([]);
       await loadData();
+    } catch (e) {
+      console.error(e);
+      // maybe show a toast or restore previous data
     } finally {
       setIsRefreshing(false);
     }
