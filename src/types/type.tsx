@@ -42,6 +42,7 @@ export type DiaryResponseType = {
   profileImage: string;
   emoji: string | null;
   createdAt: string;
+  updatedAt?: string;
 };
 
 export type CommentRequestType = {

@@ -14,7 +14,6 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Menu } from 'lucide-react-native';
-import { BackwardButton } from '../components/react-native-form/BackwardButton';
 import AddDiaryButton from '../components/react-native-form/AddDiaryButton';
 import { useNavigation } from '@react-navigation/native';
 import CommentPage from '../pages/comment/CommentPage';
@@ -28,11 +27,14 @@ import {
 import { layouts } from '../themes/theme';
 import { BottomTabParamList } from '../types/type';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ScrollToTopButton from '../components/react-native-form/ScrollToTopButton';
 
 interface Props {
   appName?: string;
   onRefresh?: () => void;
+  isScrollView?: boolean;
   children: React.ReactNode;
+  ref?: any;
 }
 
 interface SidebarContentProps {
@@ -187,7 +189,13 @@ const Header = memo(function Header({
 
 type MyDiariesNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
-function Layout({ appName = '앱', onRefresh, children }: Props) {
+function Layout({
+  appName = '앱',
+  onRefresh,
+  children,
+  isScrollView = true,
+  ref,
+}: Props) {
   const { open, setOpen, isLogin, setIsLogin } = useLogin();
   const [visible, setVisible] = useState(false);
   const [contentReady, setContentReady] = useState(false);
@@ -278,6 +286,25 @@ function Layout({ appName = '앱', onRefresh, children }: Props) {
     );
   }, [setIsLogin]);
 
+  const handleScrollToTop = () => {
+    if (!ref.current) return;
+
+    // FlatList
+    if (ref.current.scrollToOffset) {
+      ref.current.scrollToOffset({
+        offset: 0,
+        animated: true,
+      });
+    }
+    // ScrollView
+    else if (ref.current.scrollTo) {
+      ref.current.scrollTo({
+        y: 0,
+        animated: true,
+      });
+    }
+  };
+
   const handleCreateDiary = useCallback(() => {
     mypagenavigation.navigate('Home', {
       screen: 'DiaryCreate',
@@ -305,17 +332,26 @@ function Layout({ appName = '앱', onRefresh, children }: Props) {
           nickname={nickname}
         />
 
-        <ScrollView
-          contentContainerStyle={styles.mainContent}
-          scrollEventThrottle={16}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-          }
-        >
-          <BackwardButton />
-          {children}
-        </ScrollView>
-
+        {isScrollView ? (
+          <ScrollView
+            // eslint-disable-next-line react-native/no-inline-styles
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.mainContent}
+            scrollEventThrottle={16}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+              />
+            }
+            ref={ref}
+          >
+            {children}
+          </ScrollView>
+        ) : (
+          <View style={styles.mainContent}>{children}</View>
+        )}
+        <ScrollToTopButton onPress={handleScrollToTop} />
         <AddDiaryButton title="+" onPress={handleCreateDiary} />
       </View>
     </SafeAreaView>
@@ -353,7 +389,7 @@ const styles = StyleSheet.create({
   },
   overlayLayer: {
     zIndex: 999,
-    elevation: 999,    
+    elevation: 999,
   },
   overlay: {
     position: 'absolute',

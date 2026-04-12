@@ -162,7 +162,7 @@ const DiaryEditPage = ({
     } as any);
 
     (images ?? []).forEach(file => {
-      formDataToSend.append('files', file);
+      formDataToSend.append('files', file as any);
     });
 
     editDiaryApi(Number(diaryId), formDataToSend)

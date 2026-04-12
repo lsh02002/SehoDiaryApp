@@ -94,7 +94,7 @@ export default function DiaryCreatePage() {
     } as any);
 
     (images ?? []).forEach(file => {
-      formDataToSend.append('files', file);
+      formDataToSend.append('files', file as any);
     });
 
     await createDiaryApi(formDataToSend)

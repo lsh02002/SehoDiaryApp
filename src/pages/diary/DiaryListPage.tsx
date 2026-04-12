@@ -1,17 +1,29 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Text, StyleSheet, View, Pressable } from 'react-native';
+/* eslint-disable react-native/no-inline-styles */
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  getDiariesByPublicApi,
-  getDiariesTargetFollowingUserIdByUser,
-} from '../../api/sehodiary-api';
+  Text,
+  StyleSheet,
+  View,
+  Pressable,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 import { DiaryResponseType, HomeStackParamList } from '../../types/type';
 import DiaryCard0 from '../../components/react-native-card/DiaryCard0';
 import { useLogin } from '../../context/LoginContext';
 import Layout from '../../layouts/Layout';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import UserProfileCard from '../../components/react-native-card/UserProfileCard';
-import { BASE_URL } from '../../api/BASE_URL';
-import EventSource from 'react-native-sse';
+import {
+  getMessaging,
+  getToken,
+  onNotificationOpenedApp,
+  getInitialNotification,
+  FirebaseMessagingTypes,
+} from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import { Button } from 'react-native';
+import { api } from '../../api/sehodiary-api';
 
 const DiaryListPage = ({
   route,
@@ -20,68 +32,122 @@ const DiaryListPage = ({
 
   const { isLogin, diary } = useLogin();
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
   const [hasNewDiary, setHasNewDiary] = useState(false);
 
-  type SseEvents = 'new-post';
+  const [now, setNow] = useState(Date.now());
+
+  const [token, setToken] = useState<string>('');
+  const [lastMessage, setLastMessage] = useState<string>('없음');
+
+  const messaging = getMessaging(getApp());
+
+  const scrollRef = useRef<any>(null);
 
   useEffect(() => {
-    const eventSource = new EventSource<SseEvents>(`${BASE_URL}/sse/posts`);
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 60000); // 1분
 
-    eventSource.addEventListener('open', event => {
-      console.log('SSE connected:', event.type);
-    });
+    return () => clearInterval(timer);
+  }, []);
 
-    eventSource.addEventListener('new-post', event => {
-      const data = JSON.parse(event.data ?? '');
+  useEffect(() => {
+    let mounted = true;
 
-      console.log('새 글 알림:', event.data);
-      if (isLogin && targetUser?.userId != null) {
-        if (targetUser?.userId === Number(data?.userId)) setHasNewDiary(true);
-      } else {
-        setHasNewDiary(true);
-      }
-    });
+    getToken(messaging)
+      .then(token0 => {
+        if (mounted) {
+          setToken(token0);
+        }
+      })
+      .catch(err => console.error(err));
 
-    eventSource.addEventListener('error', event => {
-      console.error('SSE error:', event);
-    });
+    const unsubscribeOpened = onNotificationOpenedApp(
+      messaging,
+      (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
+        console.log(
+          'Notification caused app to open from background:',
+          remoteMessage,
+        );
+
+        if (mounted) {
+          setLastMessage(JSON.stringify(remoteMessage, null, 2));
+        }
+      },
+    );
+
+    getInitialNotification(messaging)
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          console.log(
+            'Notification caused app to open from quit state:',
+            remoteMessage,
+          );
+
+          if (mounted) {
+            setLastMessage(JSON.stringify(remoteMessage, null, 2));
+          }
+        }
+      })
+      .catch(err => console.error(err));
 
     return () => {
-      eventSource.removeAllEventListeners();
-      eventSource.close();
+      mounted = false;
+      unsubscribeOpened();
     };
-  }, [isLogin, targetUser?.userId]);
+  }, [messaging]);
 
   const loadData = useCallback(() => {
     if (isLogin && targetUser?.userId != null) {
-      setLoading(true);
+      if (loading || !hasMore) return;
 
-      getDiariesTargetFollowingUserIdByUser(targetUser?.userId ?? -1)
+      setLoading(true);
+      api
+        .get(`/diary/${targetUser?.userId}/user?page=${page}&limit=10`)
         .then(res => {
-          setDiaryList(res.data ?? []);
+          setDiaryList(prev => [...prev, ...(res.data?.content ?? [])]);
+          setHasMore(res.data?.content.length > 0);
+          setPage(prev => prev + 1);
         })
         .finally(() => {
           setLoading(false);
         });
     } else {
+      if (loading || !hasMore) return;
       setLoading(true);
-
-      getDiariesByPublicApi()
+      api
+        .get(`/diary/public?page=${page}&limit=10`)
         .then(res => {
-          setDiaryList(res.data);
+          setDiaryList(prev => [...prev, ...(res.data?.content ?? [])]);
+          setHasMore(res.data?.content.length > 0);
+          setPage(prev => prev + 1);
         })
         .catch(() => {})
         .finally(() => {
           setLoading(false);
         });
     }
-  }, [isLogin, targetUser?.userId]);
+  }, [hasMore, isLogin, loading, page, targetUser?.userId]);
 
-  useEffect(() => {
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadData();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleEndReached = useCallback(() => {
+    if (loading || !hasMore) return;
     loadData();
-  }, [loadData]);
+  }, [loading, hasMore, loadData]);
 
   useEffect(() => {
     setDiaryList(prev => {
@@ -101,39 +167,66 @@ const DiaryListPage = ({
   }
 
   return (
-    <Layout onRefresh={loadData}>
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <UserProfileCard user={targetUser ?? null} />
-          {hasNewDiary && (
-            <Pressable
-              // eslint-disable-next-line react-native/no-inline-styles
-              style={{
-                backgroundColor: '#fff3cd',
-                paddingVertical: 12,
-                paddingHorizontal: 16,
-                borderWidth: 1,
-                borderColor: '#ffe69c',
-                marginBottom: 16,
-                borderRadius: 8,
-              }}
-              onPress={() => {
-                loadData();
-                setHasNewDiary(false);
-              }}
-            >
-              <Text>새로운 글이 올라와 있습니다. 눌러서 새로고침하세요.</Text>
-            </Pressable>
-          )}
-          {diaryList && diaryList.length > 0 ? (
-            diaryList.map((diary0: DiaryResponseType) => (
-              <DiaryCard0 key={diary0?.id} diary0={diary0} />
-            ))
-          ) : (
-            <Text style={styles.emptyText}>해당 글이 없습니다!</Text>
-          )}
-        </View>
-      </View>
+    <Layout ref={scrollRef} isScrollView={false}>
+      <FlatList
+        ref={scrollRef}
+        data={diaryList}
+        keyExtractor={item => String(item.id)}
+        renderItem={({ item }) => <DiaryCard0 diary0={item} now={now} />}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.3}
+        contentContainerStyle={styles.content}
+        refreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        ListHeaderComponent={
+          <>
+            <UserProfileCard user={targetUser ?? null} />
+
+            {hasNewDiary && (
+              <Pressable
+                style={{
+                  backgroundColor: '#fff3cd',
+                  paddingVertical: 12,
+                  paddingHorizontal: 16,
+                  borderWidth: 1,
+                  borderColor: '#ffe69c',
+                  marginBottom: 16,
+                  borderRadius: 8,
+                }}
+                onPress={() => {
+                  loadData();
+                  setHasNewDiary(false);
+                }}
+              >
+                <Text>새로운 글이 올라와 있습니다. 눌러서 새로고침하세요.</Text>
+              </Pressable>
+            )}
+
+            <View>
+              <Text selectable style={{ marginBottom: 24 }}>
+                {token || '불러오는 중...'}
+              </Text>
+
+              <Text style={{ fontWeight: '700', marginBottom: 8 }}>
+                마지막 메시지
+              </Text>
+
+              <Text style={{ marginBottom: 24 }}>{lastMessage}</Text>
+
+              <Button
+                title="토큰 다시 조회"
+                onPress={async () => {
+                  const newToken = await messaging.getToken();
+                  setToken(newToken);
+                }}
+              />
+            </View>
+          </>
+        }
+        ListFooterComponent={
+          loading ? <ActivityIndicator style={{ paddingVertical: 20 }} /> : null
+        }
+      />
     </Layout>
   );
 };
@@ -143,10 +236,8 @@ export default DiaryListPage;
 const styles = StyleSheet.create({
   container: {
     marginTop: 12,
-    marginBottom: 100,
   },
   content: {
-    flex: 1,
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 24,

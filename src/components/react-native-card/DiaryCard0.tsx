@@ -14,10 +14,7 @@ import { useWindowDimensions } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {
-  BottomTabParamList,
-  DiaryResponseType,
-} from '../../types/type';
+import { BottomTabParamList, DiaryResponseType } from '../../types/type';
 import { useLogin } from '../../context/LoginContext';
 import {
   deleteLikeApi,
@@ -30,7 +27,13 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 type MyDiariesNavigationProp = BottomTabNavigationProp<BottomTabParamList>;
 
-const DiaryCard0 = ({ diary0 }: { diary0: DiaryResponseType }) => {  
+const DiaryCard0 = ({
+  diary0,
+  now,
+}: {
+  diary0: DiaryResponseType;
+  now: number;
+}) => {
   const mypagenavigaton = useNavigation<MyDiariesNavigationProp>();
   const { width } = useWindowDimensions();
   const { isLogin, setOpen, setDiary } = useLogin();
@@ -38,6 +41,12 @@ const DiaryCard0 = ({ diary0 }: { diary0: DiaryResponseType }) => {
   const [likesCount, setLikesCount] = useState(-1);
   const [nicknameList, setNicknameList] = useState<string[]>([]);
   const [likesModalVisible, setLikesModalVisible] = useState(false);
+
+  const updatedAt = diary0?.updatedAt;
+  const createdAt = diary0?.createdAt;
+  const updatedTime = updatedAt ? new Date(updatedAt).getTime() : 0;
+  const isRecentlyUpdated =
+    updatedTime > now - 60 * 60 * 1000 && createdAt !== updatedAt;
 
   useEffect(() => {
     setLikesCount(diary0?.likesCount ?? -1);
@@ -105,7 +114,10 @@ const DiaryCard0 = ({ diary0 }: { diary0: DiaryResponseType }) => {
       <View style={styles.body}>
         <View style={styles.column}>
           <Pressable style={styles.headerRow} onPress={moveToDetail}>
-            <Text style={styles.diaryId}>#{diary0?.id}</Text>
+            <Text style={styles.diaryId}>
+              #{diary0?.id}
+              {isRecentlyUpdated && <Text>수정됨(1시간내)</Text>}
+            </Text>
             <Text style={styles.title}>{diary0?.title}</Text>
           </Pressable>
 

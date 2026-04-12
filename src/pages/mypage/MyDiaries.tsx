@@ -9,13 +9,22 @@ const MyDiaries = ({ reloadKey }: { reloadKey?: number }) => {
   const { diary } = useLogin();
   const [diaryList, setDiaryList] = useState<DiaryResponseType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 60000); // 1분
+
+    return () => clearInterval(timer);
+  }, []);
 
   const loadData = useCallback(() => {
     setLoading(true);
 
     getDiariesByUserApi()
       .then(res => {
-        setDiaryList(res.data ?? []);
+        setDiaryList(res.data?.content ?? []);
       })
       .catch(() => {
         setDiaryList([]);
@@ -49,7 +58,7 @@ const MyDiaries = ({ reloadKey }: { reloadKey?: number }) => {
 
       {diaryList.length > 0 ? (
         diaryList.map((diary0: DiaryResponseType) => (
-          <DiaryCard0 key={String(diary0?.id)} diary0={diary0} />
+          <DiaryCard0 key={String(diary0?.id)} diary0={diary0} now={now} />
         ))
       ) : (
         <View style={styles.emptyBox}>

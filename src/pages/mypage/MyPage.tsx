@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -38,6 +38,8 @@ const MyPage = () => {
   const [diariesReloadKey, setDiariesReloadKey] = useState(0);
   const [commentsReloadKey, setCommentsReloadKey] = useState(0);
   const [activityLogsReloadKey, setActivityLogsReloadKey] = useState(0);
+
+  const scrollRef = useRef<any>(null);
 
   const initialTab = useMemo<MyPageTab>(() => {
     const tab = route.params?.tab;
@@ -116,7 +118,7 @@ const MyPage = () => {
   }
 
   return (
-    <Layout onRefresh={onRefresh}>
+    <Layout onRefresh={onRefresh} ref={scrollRef}>
       <View style={styles.container}>
         <View style={styles.tabList}>
           {TABS.map(tab => {
@@ -203,7 +205,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 24,
+    paddingBottom: 24,    
   },
   emptyText: {
     fontSize: 16,

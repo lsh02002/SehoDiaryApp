@@ -5,6 +5,10 @@ import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import BottomTabNavigator from './src/layouts/BottomTabNavigator';
+import {
+  initFcm,
+  requestNotificationPermission,
+} from './src/firebase/messaging';
 
 function AppContent() {
   const { setIsLogin } = useLogin();
@@ -26,6 +30,33 @@ function AppContent() {
 
     init();
   }, [setIsLogin]);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+
+    const setupFcm = async () => {
+      try {
+        const hasPermission = await requestNotificationPermission();
+
+        if (!hasPermission) {
+          console.log('알림 권한 없음');
+          return;
+        }
+
+        unsubscribe = await initFcm();
+      } catch (error) {
+        console.error('FCM init error:', error);
+      }
+    };
+
+    setupFcm();
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, []);
 
   return <BottomTabNavigator />;
 }

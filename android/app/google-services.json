@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "794442116964",
+    "project_id": "sehodiary",
+    "storage_bucket": "sehodiary.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:794442116964:android:eac6216e47d2c77ee01471",
+        "android_client_info": {
+          "package_name": "com.sehodiaryapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0UsEpfu0obz9z5Pjn_IzEOva4mVgCcJ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
