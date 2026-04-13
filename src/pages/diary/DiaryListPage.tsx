@@ -59,15 +59,39 @@ const DiaryListPage = ({
   }, []);
 
   useEffect(() => {
-    let mounted = true;
+    const handleOpenedMessage = (
+      remoteMessage: FirebaseMessagingTypes.RemoteMessage | null,
+    ) => {
+      if (!remoteMessage) {
+        return;
+      }
 
-    getToken(messaging)
-      .then(token0 => {
-        if (mounted) {
-          setToken(token0);
-        }
-      })
-      .catch(err => console.error(err));
+      console.log('Notification open event:', remoteMessage);
+      setLastMessage(JSON.stringify(remoteMessage, null, 2));
+
+      if (remoteMessage.data?.type === 'POST_CREATED') {
+        setHasNewDiary(true);
+      }
+    };
+
+    const init = async () => {
+      try {
+        const token0 = await getToken(messaging);
+        setToken(token0);
+      } catch (err) {
+        console.error('getToken error:', err);
+      }
+
+      try {
+        const remoteMessage = await getInitialNotification(messaging);
+        console.log('getInitialNotification result:', remoteMessage);
+        handleOpenedMessage(remoteMessage);
+      } catch (err) {
+        console.error('getInitialNotification error:', err);
+      }
+    };
+
+    init();
 
     const unsubscribeOpened = onNotificationOpenedApp(
       messaging,
@@ -76,34 +100,15 @@ const DiaryListPage = ({
           'Notification caused app to open from background:',
           remoteMessage,
         );
-
-        if (mounted) {
-          setLastMessage(JSON.stringify(remoteMessage, null, 2));
-        }
+        handleOpenedMessage(remoteMessage);
       },
     );
 
-    getInitialNotification(messaging)
-      .then(remoteMessage => {
-        if (remoteMessage && mounted) {
-          console.log(
-            'Notification caused app to open from quit state:',
-            remoteMessage,
-          );
-          setLastMessage(JSON.stringify(remoteMessage, null, 2));
-
-          if (remoteMessage.data?.type === 'POST_CREATED') {
-            setHasNewDiary(true);
-          }
-        }
-      })
-      .catch(err => console.error(err));
-
     return () => {
-      mounted = false;
       unsubscribeOpened();
     };
-  }, [messaging]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const mergeUniqueById = (
     prev: DiaryResponseType[],
@@ -199,27 +204,6 @@ const DiaryListPage = ({
         ListHeaderComponent={
           <>
             <UserProfileCard user={targetUser ?? null} />
-
-            {hasNewDiary && (
-              <Pressable
-                style={{
-                  backgroundColor: '#fff3cd',
-                  paddingVertical: 12,
-                  paddingHorizontal: 16,
-                  borderWidth: 1,
-                  borderColor: '#ffe69c',
-                  marginBottom: 16,
-                  borderRadius: 8,
-                }}
-                onPress={() => {
-                  handleRefresh();
-                  setHasNewDiary(false);
-                }}
-              >
-                <Text>새로운 글이 올라와 있습니다. 눌러서 새로고침하세요.</Text>
-              </Pressable>
-            )}
-
             <View>
               <Text selectable style={{ marginBottom: 24 }}>
                 {token || '불러오는 중...'}
@@ -239,6 +223,26 @@ const DiaryListPage = ({
                 }}
               />
             </View>
+            {hasNewDiary && (
+              <Pressable
+                style={{
+                  backgroundColor: '#fff3cd',
+                  paddingVertical: 12,
+                  paddingHorizontal: 16,
+                  borderWidth: 1,
+                  borderColor: '#ffe69c',
+                  marginTop: 16,
+                  marginBottom: 16,
+                  borderRadius: 8,
+                }}
+                onPress={() => {
+                  handleRefresh();
+                  setHasNewDiary(false);
+                }}
+              >
+                <Text>새로운 글이 올라와 있습니다. 눌러서 새로고침하세요.</Text>
+              </Pressable>
+            )}
           </>
         }
         ListEmptyComponent={

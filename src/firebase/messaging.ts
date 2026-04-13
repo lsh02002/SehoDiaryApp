@@ -21,28 +21,34 @@ export async function requestNotificationPermission() {
       PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
     );
 
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
+    if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+      return false;
+    }
   }
 
-  return true;
+  const authStatus = await requestPermission(messaging);
+
+  return (
+    authStatus === AuthorizationStatus.AUTHORIZED ||
+    authStatus === AuthorizationStatus.PROVISIONAL
+  );
 }
 
 export async function initFcm() {
-  const authStatus = await requestPermission(messaging);
-
-  const enabled =
-    authStatus === AuthorizationStatus.AUTHORIZED ||
-    authStatus === AuthorizationStatus.PROVISIONAL;
+  const enabled = await requestNotificationPermission();
 
   if (!enabled) {
     console.log('알림 권한 거부됨');
     return () => {};
   }
 
-  const token = await getToken(messaging);
-  console.log('FCM token:', token);
-
-  await registerFcmToken(token);
+  try {
+    const token = await getToken(messaging);
+    console.log('FCM token:', token);
+    await registerFcmToken(token);
+  } catch (err) {
+    console.error('FCM token registration error:', err);
+  }
 
   const unsubscribeOnMessage = onMessage(
     messaging,
@@ -61,6 +67,8 @@ export async function initFcm() {
 
       if (typeof title === 'string' && typeof body === 'string') {
         showToast(`${title}: ${body}`, 'info');
+      } else {
+        showToast('새 알림이 도착했습니다.', 'info');
       }
     },
   );
@@ -68,8 +76,12 @@ export async function initFcm() {
   const unsubscribeOnTokenRefresh = onTokenRefresh(
     messaging,
     async (newToken: string) => {
-      console.log('FCM token refreshed:', newToken);
-      await registerFcmToken(newToken);
+      try {
+        console.log('FCM token refreshed:', newToken);
+        await registerFcmToken(newToken);
+      } catch (err) {
+        console.error('FCM token refresh registration error:', err);
+      }
     },
   );
 
