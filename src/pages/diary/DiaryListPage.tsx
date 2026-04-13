@@ -7,6 +7,7 @@ import {
   Pressable,
   FlatList,
   ActivityIndicator,
+  Button,
 } from 'react-native';
 import { DiaryResponseType, HomeStackParamList } from '../../types/type';
 import DiaryCard0 from '../../components/react-native-card/DiaryCard0';
@@ -22,7 +23,6 @@ import {
   FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging';
 import { getApp } from '@react-native-firebase/app';
-import { Button } from 'react-native';
 import { api } from '../../api/sehodiary-api';
 
 const DiaryListPage = ({
@@ -47,12 +47,13 @@ const DiaryListPage = ({
 
   const messaging = getMessaging(getApp());
 
-  const scrollRef = useRef<any>(null);
+  const scrollRef = useRef<FlatList<DiaryResponseType> | null>(null);
+  const loadingRef = useRef(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(Date.now());
-    }, 60000); // 1분
+    }, 60000);
 
     return () => clearInterval(timer);
   }, []);
@@ -84,14 +85,15 @@ const DiaryListPage = ({
 
     getInitialNotification(messaging)
       .then(remoteMessage => {
-        if (remoteMessage) {
+        if (remoteMessage && mounted) {
           console.log(
             'Notification caused app to open from quit state:',
             remoteMessage,
           );
+          setLastMessage(JSON.stringify(remoteMessage, null, 2));
 
-          if (mounted) {
-            setLastMessage(JSON.stringify(remoteMessage, null, 2));
+          if (remoteMessage.data?.type === 'POST_CREATED') {
+            setHasNewDiary(true);
           }
         }
       })
@@ -103,72 +105,84 @@ const DiaryListPage = ({
     };
   }, [messaging]);
 
-  const loadData = useCallback(() => {
-    if (isLogin && targetUser?.userId != null) {
-      if (loading || !hasMore) return;
+  const mergeUniqueById = (
+    prev: DiaryResponseType[],
+    next: DiaryResponseType[],
+  ) => {
+    const map = new Map<number | string, DiaryResponseType>();
 
-      setLoading(true);
-      api
-        .get(`/diary/${targetUser?.userId}/user?page=${page}&limit=10`)
-        .then(res => {
-          setDiaryList(prev => [...prev, ...(res.data?.content ?? [])]);
-          setHasMore(res.data?.content.length > 0);
-          setPage(prev => prev + 1);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    } else {
-      if (loading || !hasMore) return;
-      setLoading(true);
-      api
-        .get(`/diary/public?page=${page}&limit=10`)
-        .then(res => {
-          setDiaryList(prev => [...prev, ...(res.data?.content ?? [])]);
-          setHasMore(res.data?.content.length > 0);
-          setPage(prev => prev + 1);
-        })
-        .catch(() => {})
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-  }, [hasMore, isLogin, loading, page, targetUser?.userId]);
+    [...prev, ...next].forEach(item => {
+      map.set(item.id, item);
+    });
 
-  const handleRefresh = async () => {
+    return Array.from(map.values());
+  };
+
+  const loadData = useCallback(
+    async (options?: { refresh?: boolean }) => {
+      const refresh = options?.refresh ?? false;
+
+      if (loadingRef.current) return;
+      if (!refresh && !hasMore) return;
+
+      loadingRef.current = true;
+      setLoading(true);
+
+      const requestPage = refresh ? 0 : page;
+
+      try {
+        const url =
+          isLogin && targetUser?.userId != null
+            ? `/diary/${targetUser.userId}/user?page=${requestPage}&limit=10`
+            : `/diary/public?page=${requestPage}&limit=10`;
+
+        const res = await api.get(url);
+        const content: DiaryResponseType[] = res.data?.content ?? [];
+
+        setDiaryList(prev =>
+          refresh ? content : mergeUniqueById(prev, content),
+        );
+
+        setHasMore(content.length > 0);
+        setPage(requestPage + 1);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        loadingRef.current = false;
+        setLoading(false);
+      }
+    },
+    [hasMore, isLogin, page, targetUser?.userId],
+  );
+
+  const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      setDiaryList([]);
-      await loadData();
-    } catch (e) {
-      console.error(e);
-      // maybe show a toast or restore previous data
+      setHasMore(true);
+      await loadData({ refresh: true });
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, [loadData]);
 
   const handleEndReached = useCallback(() => {
-    if (loading || !hasMore) return;
+    if (loadingRef.current || !hasMore) return;
     loadData();
-  }, [loading, hasMore, loadData]);
+  }, [hasMore, loadData]);
 
   useEffect(() => {
-    setDiaryList(prev => {
-      if (!prev) return prev;
-      return prev.map(i => (i.id === diary?.id ? diary : i));
-    });
-  }, [diary]);
+    setDiaryList([]);
+    setPage(0);
+    setHasMore(true);
+    loadData({ refresh: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLogin, targetUser?.userId]);
 
-  if (loading) {
-    return (
-      <Layout>
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>불러오는 중...</Text>
-        </View>
-      </Layout>
-    );
-  }
+  useEffect(() => {
+    if (!diary?.id) return;
+
+    setDiaryList(prev => prev.map(i => (i.id === diary.id ? diary : i)));
+  }, [diary]);
 
   return (
     <Layout ref={scrollRef} isScrollView={false}>
@@ -198,7 +212,7 @@ const DiaryListPage = ({
                   borderRadius: 8,
                 }}
                 onPress={() => {
-                  loadData();
+                  handleRefresh();
                   setHasNewDiary(false);
                 }}
               >
@@ -226,6 +240,13 @@ const DiaryListPage = ({
               />
             </View>
           </>
+        }
+        ListEmptyComponent={
+          !loading ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>데이터가 없습니다.</Text>
+            </View>
+          ) : null
         }
         ListFooterComponent={
           loading ? <ActivityIndicator style={{ paddingVertical: 20 }} /> : null
