@@ -7,7 +7,6 @@ import {
   Pressable,
   FlatList,
   ActivityIndicator,
-  Button,
 } from 'react-native';
 import { DiaryResponseType, HomeStackParamList } from '../../types/type';
 import DiaryCard0 from '../../components/react-native-card/DiaryCard0';
@@ -15,15 +14,8 @@ import { useLogin } from '../../context/LoginContext';
 import Layout from '../../layouts/Layout';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import UserProfileCard from '../../components/react-native-card/UserProfileCard';
-import {
-  getMessaging,
-  getToken,
-  onNotificationOpenedApp,
-  getInitialNotification,
-  FirebaseMessagingTypes,
-} from '@react-native-firebase/messaging';
-import { getApp } from '@react-native-firebase/app';
 import { api } from '../../api/sehodiary-api';
+import notifee, { EventType } from '@notifee/react-native';
 
 const DiaryListPage = ({
   route,
@@ -38,14 +30,9 @@ const DiaryListPage = ({
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
-  const [hasNewDiary, setHasNewDiary] = useState(false);
+  const { hasNewDiary, setHasNewDiary } = useLogin();
 
   const [now, setNow] = useState(Date.now());
-
-  const [token, setToken] = useState<string>('');
-  const [lastMessage, setLastMessage] = useState<string>('없음');
-
-  const messaging = getMessaging(getApp());
 
   const scrollRef = useRef<FlatList<DiaryResponseType> | null>(null);
   const loadingRef = useRef(false);
@@ -59,56 +46,40 @@ const DiaryListPage = ({
   }, []);
 
   useEffect(() => {
-    const handleOpenedMessage = (
-      remoteMessage: FirebaseMessagingTypes.RemoteMessage | null,
-    ) => {
-      if (!remoteMessage) {
-        return;
-      }
-
-      console.log('Notification open event:', remoteMessage);
-      setLastMessage(JSON.stringify(remoteMessage, null, 2));
-
-      if (remoteMessage.data?.type === 'POST_CREATED') {
-        setHasNewDiary(true);
-      }
-    };
-
     const init = async () => {
       try {
-        const token0 = await getToken(messaging);
-        setToken(token0);
-      } catch (err) {
-        console.error('getToken error:', err);
-      }
+        const initialNotification = await notifee.getInitialNotification();
+        console.log('notifee initialNotification:', initialNotification);
 
-      try {
-        const remoteMessage = await getInitialNotification(messaging);
-        console.log('getInitialNotification result:', remoteMessage);
-        handleOpenedMessage(remoteMessage);
+        const data = initialNotification?.notification?.data;
+
+        if (data?.type === 'POST_CREATED') {
+          console.log('POST_CREATED detected from notifee');
+          setHasNewDiary(true);
+        }
       } catch (err) {
-        console.error('getInitialNotification error:', err);
+        console.error('notifee getInitialNotification error:', err);
       }
     };
+
+    // 포그라운드에서 알림 클릭 처리
+    const unsubscribe = notifee.onForegroundEvent(({ type, detail }) => {
+      if (type === EventType.PRESS) {
+        const data = detail.notification?.data;
+
+        if (data?.type === 'POST_CREATED') {
+          console.log('POST_CREATED detected (foreground)');
+          setHasNewDiary(true);
+        }
+      }
+    });
 
     init();
 
-    const unsubscribeOpened = onNotificationOpenedApp(
-      messaging,
-      (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
-        console.log(
-          'Notification caused app to open from background:',
-          remoteMessage,
-        );
-        handleOpenedMessage(remoteMessage);
-      },
-    );
-
     return () => {
-      unsubscribeOpened();
+      unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setHasNewDiary]);
 
   const mergeUniqueById = (
     prev: DiaryResponseType[],
@@ -204,25 +175,6 @@ const DiaryListPage = ({
         ListHeaderComponent={
           <>
             <UserProfileCard user={targetUser ?? null} />
-            <View>
-              <Text selectable style={{ marginBottom: 24 }}>
-                {token || '불러오는 중...'}
-              </Text>
-
-              <Text style={{ fontWeight: '700', marginBottom: 8 }}>
-                마지막 메시지
-              </Text>
-
-              <Text style={{ marginBottom: 24 }}>{lastMessage}</Text>
-
-              <Button
-                title="토큰 다시 조회"
-                onPress={async () => {
-                  const newToken = await messaging.getToken();
-                  setToken(newToken);
-                }}
-              />
-            </View>
             {hasNewDiary && (
               <Pressable
                 style={{

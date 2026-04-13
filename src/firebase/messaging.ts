@@ -1,92 +1,82 @@
-import { PermissionsAndroid, Platform } from 'react-native';
 import {
   FirebaseMessagingTypes,
   getMessaging,
-  getToken,
   onMessage,
-  onTokenRefresh,
-  requestPermission,
-  AuthorizationStatus,
 } from '@react-native-firebase/messaging';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import notifee, { AndroidImportance } from '@notifee/react-native';
 import { getApp } from '@react-native-firebase/app';
-import { registerFcmToken } from '../api/fcmApi';
-import { showToast } from '../layouts/Toast';
 
-const app = getApp();
-const messaging = getMessaging(app);
+type MessageData = Record<string, string | object>;
 
-export async function requestNotificationPermission() {
-  if (Platform.OS === 'android' && Platform.Version >= 33) {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-    );
+const messaging = getMessaging(getApp());
 
-    if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-      return false;
-    }
-  }
+function getString(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
 
-  const authStatus = await requestPermission(messaging);
+async function saveDiaryEvent(data?: MessageData) {
+  const type = getString(data?.type);
 
-  return (
-    authStatus === AuthorizationStatus.AUTHORIZED ||
-    authStatus === AuthorizationStatus.PROVISIONAL
+  if (type !== 'POST_CREATED') return;
+
+  const postId = getString(data?.postId);
+  const screen = getString(data?.screen);
+
+  await AsyncStorage.setItem(
+    'PENDING_DIARY_EVENT',
+    JSON.stringify({
+      hasNewDiary: true,
+      postId: postId ?? null,
+      screen: screen ?? null,
+      receivedAt: Date.now(),
+    }),
   );
 }
 
-export async function initFcm() {
-  const enabled = await requestNotificationPermission();
-
-  if (!enabled) {
-    console.log('알림 권한 거부됨');
-    return () => {};
-  }
-
-  try {
-    const token = await getToken(messaging);
-    console.log('FCM token:', token);
-    await registerFcmToken(token);
-  } catch (err) {
-    console.error('FCM token registration error:', err);
-  }
-
+export async function initFcm(setHasNewDiary: (value: boolean) => void) {
   const unsubscribeOnMessage = onMessage(
     messaging,
     async (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
       console.log('Foreground message:', remoteMessage);
 
-      const title =
-        remoteMessage.notification?.title ||
-        remoteMessage.data?.title ||
-        '알림';
+      // 클릭 안 해도 즉시 반영
+      if (remoteMessage.data?.type === 'POST_CREATED') {
+        setHasNewDiary(true);
+      }
 
+      // 앱 재시작 대비 저장
+      await saveDiaryEvent(remoteMessage.data);
+
+      // 필요하면 포그라운드에서도 notifee 표시
+      const channelId = await notifee.createChannel({
+        id: 'default',
+        name: '기본 알림',
+        importance: AndroidImportance.HIGH,
+      });
+
+      const rawTitle =
+        remoteMessage.notification?.title ?? remoteMessage.data?.title;
+      const rawBody =
+        remoteMessage.notification?.body ?? remoteMessage.data?.body;
+
+      const title = typeof rawTitle === 'string' ? rawTitle : '알림';
       const body =
-        remoteMessage.notification?.body ||
-        remoteMessage.data?.body ||
-        '메시지가 도착했습니다.';
+        typeof rawBody === 'string' ? rawBody : '메시지가 도착했습니다.';
 
-      if (typeof title === 'string' && typeof body === 'string') {
-        showToast(`${title}: ${body}`, 'info');
-      } else {
-        showToast('새 알림이 도착했습니다.', 'info');
-      }
-    },
-  );
-
-  const unsubscribeOnTokenRefresh = onTokenRefresh(
-    messaging,
-    async (newToken: string) => {
-      try {
-        console.log('FCM token refreshed:', newToken);
-        await registerFcmToken(newToken);
-      } catch (err) {
-        console.error('FCM token refresh registration error:', err);
-      }
+      await notifee.displayNotification({
+        title,
+        body,
+        data: remoteMessage.data,
+        android: {
+          channelId,
+          pressAction: { id: 'default' },
+        },
+      });
     },
   );
 
   return () => {
     unsubscribeOnMessage();
-    unsubscribeOnTokenRefresh();
   };
 }

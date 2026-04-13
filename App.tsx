@@ -5,13 +5,11 @@ import { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import BottomTabNavigator from './src/layouts/BottomTabNavigator';
-import {
-  initFcm,
-  requestNotificationPermission,
-} from './src/firebase/messaging';
+import { initFcm } from './src/firebase/messaging';
 
 function AppContent() {
   const { setIsLogin } = useLogin();
+  const { setHasNewDiary } = useLogin();
 
   useEffect(() => {
     const getAccessToken = async () => {
@@ -32,31 +30,26 @@ function AppContent() {
   }, [setIsLogin]);
 
   useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
+    const bootstrap = async () => {
+      const saved = await AsyncStorage.getItem('PENDING_DIARY_EVENT');
 
-    const setupFcm = async () => {
-      try {
-        const hasPermission = await requestNotificationPermission();
+      if (saved) {
+        const parsed = JSON.parse(saved);
 
-        if (!hasPermission) {
-          console.log('알림 권한 없음');
-          return;
+        if (parsed?.hasNewDiary) {
+          setHasNewDiary(true);
         }
-
-        unsubscribe = await initFcm();
-      } catch (error) {
-        console.error('FCM init error:', error);
       }
     };
 
-    setupFcm();
+    bootstrap();
+
+    const unsubscribe = initFcm(setHasNewDiary);
 
     return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
+      Promise.resolve(unsubscribe).then(fn => fn?.());
     };
-  }, []);
+  }, [setHasNewDiary]);
 
   return <BottomTabNavigator />;
 }
