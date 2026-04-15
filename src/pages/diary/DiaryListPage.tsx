@@ -85,13 +85,8 @@ const DiaryListPage = ({
     prev: DiaryResponseType[],
     next: DiaryResponseType[],
   ) => {
-    const map = new Map<number | string, DiaryResponseType>();
-
-    [...prev, ...next].forEach(item => {
-      map.set(item.id, item);
-    });
-
-    return Array.from(map.values());
+    const seen = new Set(prev.map(v => v.id));
+    return [...prev, ...next.filter(v => !seen.has(v.id))];
   };
 
   const loadData = useCallback(
